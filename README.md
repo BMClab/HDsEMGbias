@@ -1,4 +1,4 @@
-# Modelo-Motoneurônio
+# HD-EMG decomposition bias Analysis
 
 [![Python](https://img.shields.io/badge/Python->=_3.10-blue.svg)](https://www.python.org/)
 [![NEURON](https://img.shields.io/badge/NEURON->=_8.2.0-orange.svg)](https://neuron.yale.edu/neuron/)
