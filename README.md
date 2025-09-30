@@ -63,6 +63,8 @@ uv run marimo edit NOTEBOOK_NAME.py
 
 ## Diabetes neuropathy codes and results in diabetes folder
 
+Place the results folder with the data inside the diabetes folder
+
 Simulations can be run with the following command:
 
 ```bash
