@@ -16,7 +16,8 @@ def _():
     import shutil
     import sys
     import platform
-    sys.path.append('./../')
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    # sys.path.append('./../')
 
     import matplotlib.pyplot as plt
     import numpy as np   
@@ -341,8 +342,8 @@ def _(compute_cv, np, os, pd, plt):
         t_start = 4000
         t_end = 10000
         ISI_CV, ISI_mean, ISI_SD = compute_cv(np.arange(mn_number), data_spikes.values, t_start, t_end, column_spikes=2)
-        expdata = pd.read_csv('results/ISI_statistics.csv')
-        data_muscle = expdata.query('Muscle == "VL"')
+        
+        
 
         # plt.figure()
         # plt.scatter(ISI_mean/1000, ISI_SD/1000, color='y', alpha=0.5)
@@ -431,7 +432,7 @@ def _():
 
 
     ## feedback altered
-        batch_name = 'variability'
+    batch_name = 'variability'
     parameters['normal']['Fmin']=0.04
     parameters['normal']['Fmax']=4
     parameters['normal']['Tcmin']=110
@@ -443,9 +444,10 @@ def _():
     parameters['normal']['feedback_strength']=1
     parameters['normal']['Umax']=2000
     parameters['normal']['gamma_order_feedback']=8
-    parameters['normal']['CST']=400
-    parameters['normal']['Kp']=0.05
-    parameters['normal']['Kp']=0.005
+    parameters['normal']['CST'] = 400
+    parameters['normal']['Kp'] = 0.05
+    parameters['normal']['Ki'] = 0.005
+    parameters['normal']['MVC'] = 300
 
     parameters['low_affected']['Fmin']=0.04/1.2
     parameters['low_affected']['Fmax']=4/1.2
@@ -460,7 +462,8 @@ def _():
     parameters['low_affected']['gamma_order_feedback']=8
     parameters['low_affected']['CST']=300
     parameters['low_affected']['Kp']=0.05
-    parameters['low_affected']['Kp']=0.005
+    parameters['low_affected']['Ki']=0.005
+    parameters['low_affected']['MVC'] = 300
 
     parameters['severe']['Fmin']=0.04/1.4
     parameters['severe']['Fmax']=4/1.4
@@ -475,7 +478,10 @@ def _():
     parameters['severe']['gamma_order_feedback']=8
     parameters['severe']['CST']=200
     parameters['severe']['Kp']=0.05
-    parameters['severe']['Kp']=0.005
+    parameters['severe']['Ki']=0.005
+    parameters['severe']['MVC'] = 300
+
+
     ## no feedback altered
     # batch_name = 'variability_no_change'
     # parameters['normal']['Fmin']=0.04
