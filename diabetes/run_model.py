@@ -680,7 +680,7 @@ def _(batch_name, execute_model, parameters, sys):
     if len(sys.argv) > 1:
         trial = int(sys.argv[1])
 
-    for condition in ['low_affected', 'severe']:
+    for condition in ['normal','low_affected', 'severe']:
         ISI_CV_1, ISI_mean_1, ISI_SD_1 = execute_model(diameter_soma_min=diameter_soma_min, diameter_soma_max=diameter_soma_max,
                                                        y_min=y_min, y_max=y_max, diameter_dend_min=diameter_dend_min,
                                                        diameter_dend_max=diameter_dend_max, x_min=x_min, x_max=x_max,
