@@ -1,114 +1,114 @@
 #!/bin/bash
 
-# Script para executar o modelo de diabetes com diferentes valores de trial
-# Executa o run_model.py com valores de trial de 0 a 49
+# Script to execute the diabetes model with different trial values
+# Executes run_model.py with trial values from 0 to 49
 
-echo "Iniciando execução dos trials..."
+echo "Starting trials execution..."
 
-# Verifica se o arquivo run_model.py existe
+# Checks if run_model.py file exists
 if [ ! -f "diabetes/run_model.py" ]; then
-    echo "Erro: Arquivo diabetes/run_model.py não encontrado!"
+    echo "Error: File diabetes/run_model.py not found!"
     exit 1
 fi
 
-# Inicia monitoramento de disco em background
+# Starts disk monitoring in background
 if [ -f "diabetes/monitor_disk.sh" ]; then
-    echo "Iniciando monitoramento de disco em background..."
+    echo "Starting disk monitoring in background..."
     ./diabetes/monitor_disk.sh &
     MONITOR_PID=$!
-    echo "Monitor de disco iniciado (PID: $MONITOR_PID)"
+    echo "Disk monitor started (PID: $MONITOR_PID)"
 fi
 
-# Função para verificar espaço em disco
+# Function to check disk space
 check_disk_space() {
     local usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
     if [ $usage -gt 85 ]; then
-        echo "Aviso: Espaço em disco baixo ($usage% usado). Limpando arquivos temporários..."
-        # Limpa arquivos temporários antigos de forma mais agressiva
+        echo "Warning: Low disk space ($usage% used). Cleaning temporary files..."
+        # Cleans old temporary files more aggressively
         find /tmp -name ".tmp*" -type f -exec rm -f {} \; 2>/dev/null || true
         find /tmp -name "tmp*" -type f -exec rm -f {} \; 2>/dev/null || true
         find /tmp -name "*.tmp" -type f -exec rm -f {} \; 2>/dev/null || true
         find /tmp -type f -name "*python*" -mmin +30 -exec rm -f {} \; 2>/dev/null || true
 
-        # Limpa cache do pip se existir
+        # Cleans pip cache if it exists
         if [ -d "$HOME/.cache/pip" ]; then
             rm -rf "$HOME/.cache/pip/wheels" 2>/dev/null || true
         fi
 
-        # Limpa arquivos de log antigos
+        # Cleans old log files
         find /var/log -name "*.log.*" -mtime +1 -exec sudo rm -f {} \; 2>/dev/null || true
 
-        # Verifica novamente
+        # Checks again
         local new_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-        echo "Espaço em disco após limpeza: $new_usage% usado"
+        echo "Disk space after cleaning: $new_usage% used"
         if [ $new_usage -gt 92 ]; then
-            echo "Erro: Espaço em disco ainda muito baixo ($new_usage%). Parando execução."
+            echo "Error: Disk space still very low ($new_usage%). Stopping execution."
             return 1
         fi
     fi
     return 0
 }
 
-# Função para limpar resultados antigos se necessário
+# Function to clean old results if necessary
 cleanup_old_results() {
     local results_size=$(du -s diabetes/results 2>/dev/null | cut -f1)
-    # Se o diretório de resultados for maior que 20GB (20971520 KB)
+    # If results directory is larger than 20GB (20971520 KB)
     if [ "$results_size" -gt 20971520 ]; then
-        echo "Diretório de resultados muito grande ($(du -sh diabetes/results | cut -f1)). Limpando arquivos mais antigos..."
-        # Remove arquivos de resultados com mais de 7 dias
+        echo "Results directory too large ($(du -sh diabetes/results | cut -f1)). Cleaning older files..."
+        # Removes result files older than 7 days
         find diabetes/results -type f -mtime +7 -exec rm -f {} \; 2>/dev/null || true
-        echo "Limpeza de resultados antigos concluída."
+        echo "Old results cleaning completed."
     fi
 }
 
-# Contadores
+# Counters
 successful_trials=0
 failed_trials=()
 
-# Executa trials de 0 a 49
+# Executes trials from 0 to 49
 for trial in {0..49}; do
-    echo "Executando trial $trial..."
+    echo "Executing trial $trial..."
 
-    # Limpa resultados antigos se necessário (a cada 10 trials)
+    # Cleans old results if necessary (every 10 trials)
     if [ $((trial % 10)) -eq 0 ]; then
         cleanup_old_results
     fi
 
-    # Verifica espaço em disco antes de cada trial
+    # Checks disk space before each trial
     if ! check_disk_space; then
-        echo "Erro: Espaço em disco insuficiente para trial $trial"
+        echo "Error: Insufficient disk space for trial $trial"
         failed_trials+=($trial)
         continue
     fi
 
     if uv run python diabetes/run_model.py $trial; then
-        echo "Trial $trial concluído com sucesso!"
+        echo "Trial $trial completed successfully!"
         ((successful_trials++))
-        # Limpa arquivos temporários após sucesso
+        # Cleans temporary files after success
         find /tmp -name ".tmp*" -type f -mmin +5 -exec rm -f {} \; 2>/dev/null || true
     else
-        echo "Erro ao executar trial $trial"
+        echo "Error executing trial $trial"
         failed_trials+=($trial)
-        # Limpa arquivos temporários após erro também
+        # Cleans temporary files after error as well
         find /tmp -name ".tmp*" -type f -mmin +5 -exec rm -f {} \; 2>/dev/null || true
     fi
 done
 
-# Relatório final
+# Final Report
 echo "=================================================="
-echo "RELATÓRIO FINAL"
+echo "FINAL REPORT"
 echo "=================================================="
-echo "Trials executados com sucesso: $successful_trials/50"
+echo "Trials executed successfully: $successful_trials/50"
 
 if [ ${#failed_trials[@]} -gt 0 ]; then
-    echo "Trials que falharam: ${failed_trials[*]}"
+    echo "Trials that failed: ${failed_trials[*]}"
 else
-    echo "Todos os trials foram executados com sucesso!"
+    echo "All trials executed successfully!"
 fi
 
-# Para o monitor de disco se estiver rodando
+# Stops disk monitor if running
 if [ ! -z "$MONITOR_PID" ]; then
-    echo "Parando monitor de disco (PID: $MONITOR_PID)..."
+    echo "Stopping disk monitor (PID: $MONITOR_PID)..."
     kill $MONITOR_PID 2>/dev/null || true
 fi
 

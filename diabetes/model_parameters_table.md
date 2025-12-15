@@ -29,6 +29,7 @@ This table contains all parameters used in the diabetes neuropathy neuromuscular
 | `ekf` | mV | Fast potassium reversal potential | -80 | Electrical |
 | `el` | mV | Leak reversal potential | -70 | Electrical |
 | `gna` | mS/cm² | Sodium conductance density | 30 | Electrical |
+| `gkf` | mS/cm² | Fast potassium conductance density | 2.25 | Electrical |
 | `gks` | mS/cm² | Slow potassium conductance density | 0.1 | Electrical |
 | `gl_soma` | mS/cm² | Leak conductance density (soma) | 7e-4 | Electrical |
 | `gl_dend` | mS/cm² | Leak conductance density (dendrites) | 7e-4 | Electrical |
@@ -139,7 +140,7 @@ This table contains all parameters used in the diabetes neuropathy neuromuscular
 | `timestep` | ms | Integration time step | 0.05 | Simulation |
 | `force_mvc` | - | Target force as fraction of MVC | 0.2 | Simulation |
 | `trial` | - | Random seed modifier for trial | 1 | Simulation |
-| `condition` | - | Experimental condition ('normal', 'low_affected', 'severe') | 'normal' | Simulation |
+| `condition` | - | Experimental condition ('normal', 'DPN') | 'normal' | Simulation |
 | **Synaptic Parameters** |
 | `syn_weight` | μS | Synaptic weight | 0.6 | Synaptic |
 | `syn_delay` | ms | Synaptic delay | 0.2 | Synaptic |
@@ -151,16 +152,7 @@ This table contains all parameters used in the diabetes neuropathy neuromuscular
 ### Normal Condition
 All parameters use their default values as listed above.
 
-### Low Affected Condition (Mild Diabetes Neuropathy)
-- `Fmin`: 0.04/1.2 = 0.033 N (reduced muscle force)
-- `Fmax`: 4/1.2 = 3.33 N (reduced muscle force)
-- `Tcmin`: 110×1.2 = 132 ms (slower contraction)
-- `Tcmax`: 25×1.2 = 30 ms (slower contraction)
-- `vel_min`: 44×0.92 = 40.5 m/s (reduced conduction velocity)
-- `vel_max`: 53×0.92 = 48.8 m/s (reduced conduction velocity)
-- `CST_number`: 300 (reduced cortical input)
-
-### Severe Condition (Severe Diabetes Neuropathy)
+### DPN Condition (Diabetic Peripheral Neuropathy)
 - `Fmin`: 0.04/1.4 = 0.029 N (severely reduced muscle force)
 - `Fmax`: 4/1.4 = 2.86 N (severely reduced muscle force)
 - `Tcmin`: 110×1.4 = 154 ms (much slower contraction)

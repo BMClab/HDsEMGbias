@@ -1308,7 +1308,7 @@ wheels = [
 
 [[package]]
 name = "marimo"
-version = "0.17.0"
+version = "0.17.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -1330,9 +1330,9 @@ dependencies = [
     { name = "uvicorn" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c5/df/e0ac84f020d717ee257b6d0634ac56c6dbff639e1929dc3ceb7458b89b06/marimo-0.17.0.tar.gz", hash = "sha256:f634e1aedc1f4d784a1cc92e916a474b73cad02fd4b72aab502237bcf104434a", size = 33938630, upload-time = "2025-10-15T16:41:26.238Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/55/91ae9083e99eba09437187f1b2cc1aa0bf01aece63d7a9687ea3d548eac0/marimo-0.17.8.tar.gz", hash = "sha256:bf68aaf733007e1aa61cfc8fb6739543df11d8e64148a14c9975f1a41439b25b", size = 33498557, upload-time = "2025-11-13T23:40:34.266Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/31/12/2e31088c1e535c7fa5234fe9a8e03954daa11e5e4f4751abb29661aa1523/marimo-0.17.0-py3-none-any.whl", hash = "sha256:3bea339b8df7ead0d7e694347ec06bd071a88cbc9dd84e00a5363c8a894ea05d", size = 34459410, upload-time = "2025-10-15T16:41:29.998Z" },
+    { url = "https://files.pythonhosted.org/packages/97/90/62462e51a66273db33a20ec07ba7e8188151593435da7efb71d2923bbea8/marimo-0.17.8-py3-none-any.whl", hash = "sha256:8ed8ac12843eb677b1e573d670d4ebbcd52d5fb077391e003c0104075c9a3978", size = 34011576, upload-time = "2025-11-13T23:40:30.078Z" },
 ]
 
 [[package]]
@@ -1487,7 +1487,7 @@ requires-dist = [
     { name = "impi-rt", marker = "sys_platform == 'win32'", specifier = ">=2021.15.0" },
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "libneuroml", specifier = ">=0.6.5" },
-    { name = "marimo", specifier = ">=0.17" },
+    { name = "marimo", specifier = ">=0.17.8" },
     { name = "matplotlib", specifier = ">=3.10.1" },
     { name = "mpi4py", specifier = ">=4.1.0" },
     { name = "neuron", marker = "sys_platform == 'linux'", specifier = ">=8.2.6" },

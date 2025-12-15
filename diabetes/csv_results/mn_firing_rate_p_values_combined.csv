@@ -1,4 +1,2 @@
-comparison,p_value_regular,p_value_random,significant_regular,significant_random
-normal_vs_severe,[1.67585215e-36],[0.11928826],[ True],[False]
-low_affected_vs_severe,[1.73091212e-12],[0.43499182],[ True],[False]
-normal_vs_low_affected,[3.11810302e-09],[0.45602671],[ True],[False]
+comparison,statistics_regular,statistics_random,p_value_regular,p_value_random,significant_random
+normal_vs_DPN,[190182.],[18286.],[2.63239192e-46],[0.24800385],[False]

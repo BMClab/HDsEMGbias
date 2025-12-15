@@ -71,45 +71,42 @@ def _(butter, filtfilt, np, plt):
 
     def plot_mn_fr(mn_rate_mean_mean, mn_rate_mean_CV, conditions):
         mean_fr = np.hstack((np.mean(mn_rate_mean_mean[conditions[0]]), 
-                             np.mean(mn_rate_mean_mean[conditions[1]]),
-                                     np.mean(mn_rate_mean_mean[conditions[2]])))
+                             np.mean(mn_rate_mean_mean[conditions[1]])))
         sem_fr = np.hstack((mn_rate_mean_mean[conditions[0]].std()/np.sqrt(len(mn_rate_mean_mean[conditions[0]])), 
-                               mn_rate_mean_mean[conditions[1]].std()/np.sqrt(len(mn_rate_mean_mean[conditions[1]])),
-                               mn_rate_mean_mean[conditions[2]].std(ddof=1)/np.sqrt(len(mn_rate_mean_mean[conditions[2]]))))
-        plt.errorbar([1,2,3], mean_fr, fmt='.', yerr=sem_fr, capsize=5, color='black')
+                               mn_rate_mean_mean[conditions[1]].std()/np.sqrt(len(mn_rate_mean_mean[conditions[1]]))))
+        plt.errorbar([1,2], mean_fr, fmt='.', yerr=sem_fr, capsize=5, color='black')
         plt.grid()
-        plt.scatter(1+0.1*np.random.normal(size=len(mn_rate_mean_mean[conditions[0]])), mn_rate_mean_mean[conditions[0]])#, c=mn_rate_mean_CV[conditions[0]], cmap='Reds', vmin=0, vmax=1)
-        plt.scatter(2+0.1*np.random.normal(size=len(mn_rate_mean_mean[conditions[1]])), mn_rate_mean_mean[conditions[1]])#, c=mn_rate_mean_CV[conditions[1]], cmap='Reds', vmin=0, vmax=1)
-        plt.scatter(3+0.1*np.random.normal(size=len(mn_rate_mean_mean[conditions[2]])), mn_rate_mean_mean[conditions[2]])#, c=mn_rate_mean_CV[conditions[2]], cmap='Reds', vmin=0, vmax=1)
-        plt.xticks([1,2,3],[conditions[0], conditions[1], conditions[2]])
+        plt.scatter(1+0.1*np.random.normal(size=len(mn_rate_mean_mean[conditions[0]])), mn_rate_mean_mean[conditions[0]])
+        plt.scatter(2+0.1*np.random.normal(size=len(mn_rate_mean_mean[conditions[1]])), mn_rate_mean_mean[conditions[1]])
+        plt.xticks([1,2],[conditions[0], conditions[1]])
         plt.ylabel('MN firing rate (Hz)')
 
     def firing_rate(spiketrains, delta_t=0.00005, filtro_ordem=4, freq_corte=0.001, tempo_max=1000):
         """
-        Função que gera o impulso de Dirac para os tempos de disparo de um neurônio.
+        Function that generates the Dirac impulse for a neuron's spike times.
 
-        Parâmetros:
-            spiketrains: Lista com os trens de disparo de neurônios.
-            neuronio: Índice do neurônio a ser processado.
-            delta_t: Intervalo de tempo. 
-            filtro_ordem : Ordem do filtro Butterworth. 
-            freq_corte: Frequência de corte normalizada para o filtro Butterworth.
-            tempo_max: Tempo máximo para o eixo x (em milissegundos). 
+        Parameters:
+            spiketrains: List with neuron spike trains.
+            neuronio: Index of the neuron to be processed.
+            delta_t: Time interval.
+            filtro_ordem : Order of the Butterworth filter.
+            freq_corte: Normalized cutoff frequency for the Butterworth filter.
+            tempo_max: Maximum time for the x-axis (in milliseconds).
         """
 
-        # Criação do vetor de tempo
+        # Creation of the time vector
         t = np.arange(0, tempo_max, delta_t)
         fr = np.zeros_like(t)
 
-        # Adiciona o impulso de Dirac em cada tempo de disparo do neurônio
+        # Adds the Dirac impulse at each spike time of the neuron
         idx = np.searchsorted(t, spiketrains/1000)
         idx = idx[idx<len(fr)]
         fr[idx] = 1/delta_t
-        # Filtro Butterworth
+        # Butterworth filter
         fs = 1/delta_t
         b, a = butter(filtro_ordem, freq_corte/(fs/2))
 
-        # Aplicação do filtro
+        # Application of the filter
         fr = filtfilt(b, a, fr)
         fr[fr<0] = 0
         return fr, t
@@ -260,7 +257,7 @@ def _(compute_cv, np, os, pd, plt):
             data = cells.get_data().segments[n]
             vm = data.filter(name="soma.v")[0]
 
-            #teste spike_datasource
+            # test spike_datasource
             spike_df = pd.DataFrame([{"neuron_id": neuron_id, "spike_time": spike_time}
                 for neuron_id, spikes in enumerate(data_source.spiketrains)
                 for spike_time in spikes])
@@ -274,7 +271,7 @@ def _(compute_cv, np, os, pd, plt):
             feedback_source = feedback_source.get_data().segments[n]
 
 
-            #teste spike_datasource
+            # test spike_datasource
             spike_df = pd.DataFrame([{"neuron_id": neuron_id, "spike_time": spike_time}
                 for neuron_id, spikes in enumerate(feedback_source.spiketrains)
                 for spike_time in spikes])
@@ -288,7 +285,7 @@ def _(compute_cv, np, os, pd, plt):
 
             # plt.show()
 
-            #teste spike_data
+            # test spike_data
             cell_spike_df = pd.DataFrame([{"neuron_id": neuron_id, "spike_time": spike_time}
                 for neuron_id, spikes in enumerate(data.spiketrains)
                 for spike_time in spikes])            
@@ -395,41 +392,7 @@ def _():
 def _():
     parameters = dict()
     parameters['normal'] = dict()
-    parameters['low_affected'] = dict()
-    parameters['severe'] = dict()
-
-    ## feedback altered
-    # batch_name = ''
-    # parameters['normal']['Fmin']=0.04
-    # parameters['normal']['Fmax']=4
-    # parameters['normal']['Tcmin']=110
-    # parameters['normal']['Tcmax']=25 
-    # parameters['normal']['vel_min']=44
-    # parameters['normal']['vel_max']=53
-    # parameters['normal']['mn_number']=250
-    # parameters['normal']['delay']=60 
-    # parameters['normal']['feedback_strength']=1
-
-    # parameters['low_affected']['Fmin']=0.04
-    # parameters['low_affected']['Fmax']=4
-    # parameters['low_affected']['Tcmin']=110*1.1
-    # parameters['low_affected']['Tcmax']=25*1.1
-    # parameters['low_affected']['vel_min']=44*0.92
-    # parameters['low_affected']['vel_max']=53*0.92
-    # parameters['low_affected']['mn_number']=250
-    # parameters['low_affected']['delay']=80 
-    # parameters['low_affected']['feedback_strength']=0.5
-
-    # parameters['severe']['Fmin']=0.04
-    # parameters['severe']['Fmax']=4
-    # parameters['severe']['Tcmin']=110*1.3
-    # parameters['severe']['Tcmax']=25*1.3
-    # parameters['severe']['vel_min']=44*0.85
-    # parameters['severe']['vel_max']=53*0.85
-    # parameters['severe']['mn_number']=250
-    # parameters['severe']['delay']=100
-    # parameters['severe']['feedback_strength']=0.0
-
+    parameters['DPN'] = dict()
 
     ## feedback altered
     batch_name = 'variability'
@@ -449,208 +412,22 @@ def _():
     parameters['normal']['Ki'] = 0.005
     parameters['normal']['MVC'] = 300
 
-    parameters['low_affected']['Fmin']=0.04/1.2
-    parameters['low_affected']['Fmax']=4/1.2
-    parameters['low_affected']['Tcmin']=110*1.2
-    parameters['low_affected']['Tcmax']=25*1.2
-    parameters['low_affected']['vel_min']=44*0.92
-    parameters['low_affected']['vel_max']=53*0.92
-    parameters['low_affected']['mn_number']=250
-    parameters['low_affected']['delay']=60 
-    parameters['low_affected']['feedback_strength']=1
-    parameters['low_affected']['Umax']=2000
-    parameters['low_affected']['gamma_order_feedback']=8
-    parameters['low_affected']['CST']=300
-    parameters['low_affected']['Kp']=0.05
-    parameters['low_affected']['Ki']=0.005
-    parameters['low_affected']['MVC'] = 300
-
-    parameters['severe']['Fmin']=0.04/1.4
-    parameters['severe']['Fmax']=4/1.4
-    parameters['severe']['Tcmin']=110*1.4
-    parameters['severe']['Tcmax']=25*1.4
-    parameters['severe']['vel_min']=44*0.85
-    parameters['severe']['vel_max']=53*0.85
-    parameters['severe']['mn_number']=250
-    parameters['severe']['delay']=60
-    parameters['severe']['feedback_strength']=1
-    parameters['severe']['Umax']=2000
-    parameters['severe']['gamma_order_feedback']=8
-    parameters['severe']['CST']=200
-    parameters['severe']['Kp']=0.05
-    parameters['severe']['Ki']=0.005
-    parameters['severe']['MVC'] = 300
-
-
-    ## no feedback altered
-    # batch_name = 'variability_no_change'
-    # parameters['normal']['Fmin']=0.04
-    # parameters['normal']['Fmax']=4
-    # parameters['normal']['Tcmin']=110
-    # parameters['normal']['Tcmax']=25 
-    # parameters['normal']['vel_min']=44
-    # parameters['normal']['vel_max']=53
-    # parameters['normal']['mn_number']=250
-    # parameters['normal']['delay']=60 
-    # parameters['normal']['feedback_strength']=1
-    # parameters['normal']['Umax']=2000
-    # parameters['normal']['gamma_order_feedback']=8
-    # parameters['normal']['CST']=400
-
-    # parameters['low_affected']['Fmin']=0.04/1.2
-    # parameters['low_affected']['Fmax']=4/1.2
-    # parameters['low_affected']['Tcmin']=110*1.2
-    # parameters['low_affected']['Tcmax']=25*1.2
-    # parameters['low_affected']['vel_min']=44*0.92
-    # parameters['low_affected']['vel_max']=53*0.92
-    # parameters['low_affected']['mn_number']=250
-    # parameters['low_affected']['delay']=60 
-    # parameters['low_affected']['feedback_strength']=1
-    # parameters['low_affected']['Umax']=2000
-    # parameters['low_affected']['gamma_order_feedback']=8
-    # parameters['low_affected']['CST']=400
-
-    # parameters['severe']['Fmin']=0.04/1.4
-    # parameters['severe']['Fmax']=4/1.4
-    # parameters['severe']['Tcmin']=110*1.4
-    # parameters['severe']['Tcmax']=25*1.4
-    # parameters['severe']['vel_min']=44*0.85
-    # parameters['severe']['vel_max']=53*0.85
-    # parameters['severe']['mn_number']=250
-    # parameters['severe']['delay']=60
-    # parameters['severe']['feedback_strength']=1
-    # parameters['severe']['Umax']=2000
-    # parameters['severe']['gamma_order_feedback']=8
-    # parameters['severe']['CST']=400
-
-    # batch_name = 'variability_reinnervation'
-    # parameters['normal']['Fmin']=0.04
-    # parameters['normal']['Fmax']=4
-    # parameters['normal']['Tcmin']=110
-    # parameters['normal']['Tcmax']=25 
-    # parameters['normal']['vel_min']=44
-    # parameters['normal']['vel_max']=53
-    # parameters['normal']['mn_number']=250
-    # parameters['normal']['delay']=60 
-    # parameters['normal']['feedback_strength']=1
-    # parameters['normal']['Umax']=2000
-    # parameters['normal']['gamma_order_feedback']=8
-    # parameters['normal']['CST']=400
-
-    # parameters['low_affected']['Fmin']=0.04/1.2
-    # parameters['low_affected']['Fmax']=4.6/1.2
-    # parameters['low_affected']['Tcmin']=110*1.2
-    # parameters['low_affected']['Tcmax']=29*1.2
-    # parameters['low_affected']['vel_min']=44*0.92
-    # parameters['low_affected']['vel_max']=52*0.92
-    # parameters['low_affected']['mn_number']=225
-    # parameters['low_affected']['delay']=60 
-    # parameters['low_affected']['feedback_strength']=1
-    # parameters['low_affected']['Umax']=2000
-    # parameters['low_affected']['gamma_order_feedback']=8
-    # parameters['low_affected']['CST']=300
-
-    # parameters['severe']['Fmin']=0.04/1.4
-    # parameters['severe']['Fmax']=5.28/1.4
-    # parameters['severe']['Tcmin']=110*1.4
-    # parameters['severe']['Tcmax']=33*1.4
-    # parameters['severe']['vel_min']=44*0.85
-    # parameters['severe']['vel_max']=50*0.85
-    # parameters['severe']['mn_number']=200
-    # parameters['severe']['delay']=60
-    # parameters['severe']['feedback_strength']=1
-    # parameters['severe']['Umax']=2000
-    # parameters['severe']['gamma_order_feedback']=8
-    # parameters['severe']['CST']=200
-
-    # batch_name = 'variability_reinnervation_no_change'
-    # parameters['normal']['Fmin']=0.04
-    # parameters['normal']['Fmax']=4
-    # parameters['normal']['Tcmin']=110
-    # parameters['normal']['Tcmax']=25 
-    # parameters['normal']['vel_min']=44
-    # parameters['normal']['vel_max']=53
-    # parameters['normal']['mn_number']=250
-    # parameters['normal']['delay']=60 
-    # parameters['normal']['feedback_strength']=1
-    # parameters['normal']['Umax']=2000
-    # parameters['normal']['gamma_order_feedback']=8
-    # parameters['normal']['CST']=400
-
-    # parameters['low_affected']['Fmin']=0.04/1.2
-    # parameters['low_affected']['Fmax']=4.6/1.2
-    # parameters['low_affected']['Tcmin']=110*1.2
-    # parameters['low_affected']['Tcmax']=29*1.2
-    # parameters['low_affected']['vel_min']=44*0.92
-    # parameters['low_affected']['vel_max']=52*0.92
-    # parameters['low_affected']['mn_number']=225
-    # parameters['low_affected']['delay']=60 
-    # parameters['low_affected']['feedback_strength']=1
-    # parameters['low_affected']['Umax']=2000
-    # parameters['low_affected']['gamma_order_feedback']=8
-    # parameters['low_affected']['CST']=400
-
-    # parameters['severe']['Fmin']=0.04/1.4
-    # parameters['severe']['Fmax']=5.28/1.4
-    # parameters['severe']['Tcmin']=110*1.4
-    # parameters['severe']['Tcmax']=33*1.4
-    # parameters['severe']['vel_min']=44*0.85
-    # parameters['severe']['vel_max']=50*0.85
-    # parameters['severe']['mn_number']=200
-    # parameters['severe']['delay']=60
-    # parameters['severe']['feedback_strength']=1
-    # parameters['severe']['Umax']=2000
-    # parameters['severe']['gamma_order_feedback']=8
-    # parameters['severe']['CST']=400
-
-    ## feedback altered
-    # batch_name = 'variability_uptake'
-    # parameters['normal']['MVC']=300
-    # parameters['normal']['Fmin']=0.04
-    # parameters['normal']['Fmax']=4
-    # parameters['normal']['Tcmin']=110
-    # parameters['normal']['Tcmax']=25 
-    # parameters['normal']['vel_min']=44
-    # parameters['normal']['vel_max']=53
-    # parameters['normal']['mn_number']=250
-    # parameters['normal']['delay']=60 
-    # parameters['normal']['feedback_strength']=1
-    # parameters['normal']['Umax']=2000
-    # parameters['normal']['gamma_order_feedback']=8
-    # parameters['normal']['CST']=400
-
-    # parameters['low_affected']['MVC']=290
-    # parameters['low_affected']['Fmin']=0.04/1.2
-    # parameters['low_affected']['Fmax']=4/1.2
-    # parameters['low_affected']['Tcmin']=110*1.2
-    # parameters['low_affected']['Tcmax']=25*1.2
-    # parameters['low_affected']['vel_min']=44*0.92
-    # parameters['low_affected']['vel_max']=53*0.92
-    # parameters['low_affected']['mn_number']=250
-    # parameters['low_affected']['delay']=60 
-    # parameters['low_affected']['feedback_strength']=1
-    # parameters['low_affected']['Umax']=2100
-    # parameters['low_affected']['gamma_order_feedback']=8
-    # parameters['low_affected']['CST']=400
-
-    # parameters['severe']['MVC']=270
-    # parameters['severe']['Fmin']=0.04/1.4
-    # parameters['severe']['Fmax']=4/1.4
-    # parameters['severe']['Tcmin']=110*1.4
-    # parameters['severe']['Tcmax']=25*1.4
-    # parameters['severe']['vel_min']=44*0.85
-    # parameters['severe']['vel_max']=53*0.85
-    # parameters['severe']['mn_number']=250
-    # parameters['severe']['delay']=60
-    # parameters['severe']['feedback_strength']=1
-    # parameters['severe']['Umax']=2200
-    # parameters['severe']['gamma_order_feedback']=8
-    # parameters['severe']['CST']=400
-
-
-
-
-
+    parameters['DPN']['Fmin']=0.04/1.4
+    parameters['DPN']['Fmax']=4/1.4
+    parameters['DPN']['Tcmin']=110*1.4
+    parameters['DPN']['Tcmax']=25*1.4
+    parameters['DPN']['vel_min']=44*0.85
+    parameters['DPN']['vel_max']=53*0.85
+    parameters['DPN']['mn_number']=250
+    parameters['DPN']['delay']=60
+    parameters['DPN']['feedback_strength']=1
+    parameters['DPN']['Umax']=2000
+    parameters['DPN']['gamma_order_feedback']=8
+    parameters['DPN']['CST']=200
+    parameters['DPN']['Kp']=0.05
+    parameters['DPN']['Ki']=0.005
+    parameters['DPN']['MVC'] = 300
+    
     return batch_name, parameters
 
 
@@ -675,12 +452,12 @@ def _(batch_name, execute_model, parameters, sys):
     gamma_order_feedforward = 8
     feedforward = 150
 
-    # Recebe o parâmetro trial da linha de comando
-    trial = 1  # valor padrão
+    # Receives the trial parameter from the command line
+    trial = 1  # default value
     if len(sys.argv) > 1:
         trial = int(sys.argv[1])
 
-    for condition in ['normal','low_affected', 'severe']:
+    for condition in ['normal', 'DPN']:
         ISI_CV_1, ISI_mean_1, ISI_SD_1 = execute_model(diameter_soma_min=diameter_soma_min, diameter_soma_max=diameter_soma_max,
                                                        y_min=y_min, y_max=y_max, diameter_dend_min=diameter_dend_min,
                                                        diameter_dend_max=diameter_dend_max, x_min=x_min, x_max=x_max,

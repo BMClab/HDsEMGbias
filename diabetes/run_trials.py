@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Script para executar o modelo de diabetes com diferentes valores de trial.
-Executa o run_model.py com valores de trial de 0 a 49.
+Script to execute the diabetes model with different trial values.
+Executes run_model.py with trial values from 0 to 49.
 """
 
 import subprocess
@@ -11,15 +11,15 @@ from pathlib import Path
 
 def run_trial(trial_number):
     """
-    Executa o run_model.py com um valor específico de trial.
+    Executes run_model.py with a specific trial value.
     
     Args:
-        trial_number (int): Número do trial a ser executado
+        trial_number (int): Trial number to be executed
     """
-    print(f"Executando trial {trial_number}...")
+    print(f"Executing trial {trial_number}...")
     
     try:
-        # Executa o script run_model.py com o parâmetro trial
+        # Executes the run_model.py script with the trial parameter
         result = subprocess.run([
             sys.executable, 
             "diabetes/run_model.py", 
@@ -30,30 +30,30 @@ def run_trial(trial_number):
         text=True
         )
         
-        print(f"Trial {trial_number} concluído com sucesso!")
+        print(f"Trial {trial_number} completed successfully!")
         if result.stdout:
             print(f"Output: {result.stdout}")
             
     except subprocess.CalledProcessError as e:
-        print(f"Erro ao executar trial {trial_number}: {e}")
+        print(f"Error executing trial {trial_number}: {e}")
         if e.stderr:
-            print(f"Erro: {e.stderr}")
+            print(f"Error: {e.stderr}")
         return False
     
     return True
 
 def main():
     """
-    Função principal que executa todos os trials de 0 a 49.
+    Main function that executes all trials from 0 to 49.
     """
-    print("Iniciando execução dos trials...")
+    print("Starting trials execution...")
     
-    # Verifica se o arquivo run_model.py existe
+    # Checks if run_model.py file exists
     if not os.path.exists("diabetes/run_model.py"):
-        print("Erro: Arquivo diabetes/run_model.py não encontrado!")
+        print("Error: File diabetes/run_model.py not found!")
         sys.exit(1)
     
-    # Executa trials de 0 a 49
+    # Executes trials from 0 to 49
     successful_trials = 0
     failed_trials = []
     
@@ -64,16 +64,16 @@ def main():
         else:
             failed_trials.append(trial)
     
-    # Relatório final
+    # Final Report
     print("\n" + "="*50)
-    print("RELATÓRIO FINAL")
+    print("FINAL REPORT")
     print("="*50)
-    print(f"Trials executados com sucesso: {successful_trials}/50")
+    print(f"Trials executed successfully: {successful_trials}/50")
     
     if failed_trials:
-        print(f"Trials que falharam: {failed_trials}")
+        print(f"Trials that failed: {failed_trials}")
     else:
-        print("Todos os trials foram executados com sucesso!")
+        print("All trials executed successfully!")
     
     print("="*50)
 
