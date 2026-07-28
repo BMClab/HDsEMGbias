@@ -1,2 +1,2 @@
 comparison,statistics_regular,statistics_random,p_value_regular,p_value_random,significant_random
-normal_vs_DPN,[190182.],[18286.],[2.63239192e-46],[0.24800385],[False]
+normal_vs_DPN,[190182.],[17949.5],[2.63239192e-46],[0.12575102],[False]
