@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.15"
+__generated_with = "0.17.8"
 app = marimo.App(width="full")
 
 
@@ -35,7 +35,6 @@ def _():
     from matplotlib.ticker import MaxNLocator
     from scipy import stats
     from scipy.signal import butter, filtfilt
-
     return MaxNLocator, butter, filtfilt, mo, np, os, pd, plt, stats, sys
 
 
@@ -74,24 +73,24 @@ def _(np, sys):
 
     mn_number = 10
     selection_seeds = {
-        "randomly": 260101,
-        "filtered_random": 260102,
-        "fr_cv": 260103,
-        "mvc10_randomly": 260108,
-        "mvc50_randomly": 260109,
+        "randomly": 20260101,
+        "filtered_random": 20260102,
+        "fr_cv": 20260103,
+        "mvc10_randomly": 20260104,
+        "mvc50_randomly": 20260105,
     }
     n_resamples = 100_000
     bootstrap_seeds = {
-        "HD-sEMG": 260104,
-        "Random": 260105,
-        "Filtered-Random": 260106,
-        "All motor units": 260107,
-        "10% MVC HD-sEMG": 20260810,
-        "10% MVC all motor units": 20260811,
-        "10% MVC Random": 20260812,
-        "50% MVC HD-sEMG": 20260850,
-        "50% MVC all motor units": 20260851,
-        "50% MVC Random": 20260852,
+        "HD-sEMG": 20260106,
+        "Random": 20260107,
+        "Filtered-Random": 20260108,
+        "All motor units": 20260109,
+        "10% MVC HD-sEMG": 20260110,
+        "10% MVC all motor units": 20260111,
+        "10% MVC Random": 20260112,
+        "50% MVC HD-sEMG": 20260113,
+        "50% MVC all motor units": 20260114,
+        "50% MVC Random": 20260115,
     }
     return (
         batch_name,
@@ -141,14 +140,10 @@ def _(
     plt,
     stats,
 ):
-    def select_mns_randomly(
-        data, t_start, t_end, size=mn_number, column_spikes=1, rng=None
-    ):
+    def select_mns_randomly(data, t_start, t_end, size=mn_number, column_spikes=1, rng=None):
         """Select a reproducible sample of unique active motor units."""
         if rng is None:
-            raise ValueError(
-                "A seeded NumPy Generator is required for random selection."
-            )
+            raise ValueError("A seeded NumPy Generator is required for random selection.")
 
         steady_data = data[
             (data[:, column_spikes] >= t_start) & (data[:, column_spikes] <= t_end)
@@ -163,10 +158,12 @@ def _(
 
         return selected_neurons
 
+
     def select_all_mns(data, t_start, t_end, column_spikes=1):
         """Select all motor units (no filtering criteria)."""
         unique_neurons = np.unique(data[:, 0])
         return unique_neurons.astype(int)
+
 
     def select_mns_regular(
         data, t_start, t_end, column_spikes=1, criteria=criteria, mn_number=mn_number
@@ -180,14 +177,10 @@ def _(
         ISI_CV, _ = compute_cv(
             unique_neurons, steady_data, t_start, t_end, column_spikes=column_spikes
         )
-        fr = compute_fr(
-            unique_neurons, data, t_start, t_end, column_spikes=column_spikes
-        )
+        fr = compute_fr(unique_neurons, data, t_start, t_end, column_spikes=column_spikes)
         # Apply the HD-sEMG-like eligibility criteria.
         selection_criteria = np.where(
-            (fr > criteria["fmin"])
-            & (fr < criteria["fmax"])
-            & (ISI_CV <= criteria["isicv"])
+            (fr > criteria["fmin"]) & (fr < criteria["fmax"]) & (ISI_CV <= criteria["isicv"])
         )[0]
         selected_neurons = unique_neurons[selection_criteria].astype(int)
         fr_sel = fr[selection_criteria]
@@ -195,6 +188,7 @@ def _(
             selected_neurons = selected_neurons[np.argsort(fr_sel)][:mn_number]
 
         return selected_neurons
+
 
     def select_mns_filtered_random(
         data,
@@ -207,9 +201,7 @@ def _(
     ):
         """Randomly select eligible motor units after HD-sEMG-like filtering."""
         if rng is None:
-            raise ValueError(
-                "A seeded NumPy Generator is required for random selection."
-            )
+            raise ValueError("A seeded NumPy Generator is required for random selection.")
 
         steady_data = data[
             (data[:, column_spikes] >= t_start) & (data[:, column_spikes] <= t_end)
@@ -218,23 +210,18 @@ def _(
         ISI_CV, _ = compute_cv(
             unique_neurons, steady_data, t_start, t_end, column_spikes=column_spikes
         )
-        fr = compute_fr(
-            unique_neurons, data, t_start, t_end, column_spikes=column_spikes
-        )
+        fr = compute_fr(unique_neurons, data, t_start, t_end, column_spikes=column_spikes)
         # Apply same filtering criteria as HD-sEMG
         selection_criteria = np.where(
-            (fr > criteria["fmin"])
-            & (fr < criteria["fmax"])
-            & (ISI_CV <= criteria["isicv"])
+            (fr > criteria["fmin"]) & (fr < criteria["fmax"]) & (ISI_CV <= criteria["isicv"])
         )[0]
         selected_neurons = unique_neurons[selection_criteria].astype(int)
         # Randomly pick mn_number from those that pass (instead of lowest FR)
         if len(selected_neurons) > mn_number:
-            selected_neurons = rng.choice(
-                selected_neurons, size=mn_number, replace=False
-            )
+            selected_neurons = rng.choice(selected_neurons, size=mn_number, replace=False)
 
         return selected_neurons
+
 
     def compute_fr(selected_neurons, data, t_start, t_end, column_spikes=1):
         """Compute steady-state firing rates for the selected motor units."""
@@ -251,6 +238,7 @@ def _(
             i = i + 1
         return firing_rates
 
+
     def compute_mn_cv(spike_times, t_start):
         """Compute the interspike-interval mean and coefficient of variation."""
         ISI = np.diff(spike_times[spike_times > t_start])
@@ -262,6 +250,7 @@ def _(
             ISI_mean = 0
             ISI_CV = 1
         return ISI_CV, ISI_mean
+
 
     def compute_cv(selected_neurons, data, t_start, t_end, column_spikes=1):
         """Compute ISI statistics for each selected motor unit."""
@@ -279,55 +268,58 @@ def _(
 
         return ISI_CV, ISI_mean
 
+
     def plot_mn_fr(
-        mn_rate_mean_mean,
-        mn_rate_mean_CV,
+        fr_data,
         conditions,
         pd,
         mode,
         jitter_seed=20260728,
     ):
-        """Plot and export firing-rate summaries for one selection mode."""
+        """Plot and export simulation-level firing-rate summaries."""
         os.makedirs("diabetes", exist_ok=True)
         jitter_rng = np.random.default_rng(jitter_seed)
+        simulation_fr = fr_data["mn_rate_trial_mean"]
+        simulation_isi_cv = fr_data["isi_cv_trial_mean"]
+        simulation_mu_counts = fr_data["n_motor_units"]
         mean_fr = np.hstack(
             (
-                np.mean(mn_rate_mean_mean[conditions[0]]),
-                np.mean(mn_rate_mean_mean[conditions[1]]),
+                np.mean(simulation_fr[conditions[0]]),
+                np.mean(simulation_fr[conditions[1]]),
             )
         )
-        sem_fr = np.hstack(
+        sd_fr = np.hstack(
             (
-                mn_rate_mean_mean[conditions[0]].std()
-                / np.sqrt(len(mn_rate_mean_mean[conditions[0]])),
-                mn_rate_mean_mean[conditions[1]].std(ddof=1)
-                / np.sqrt(len(mn_rate_mean_mean[conditions[1]])),
+                simulation_fr[conditions[0]].std(ddof=1),
+                simulation_fr[conditions[1]].std(ddof=1),
             )
         )
 
         fig, ax = plt.subplots()
-        ax.errorbar([1, 2], mean_fr, fmt=".", yerr=sem_fr, capsize=5, color="black")
-        ax.grid()
+        ax.errorbar([1, 2], mean_fr, fmt=".", yerr=sd_fr, capsize=5, color="black")
+        # ax.grid()
         ax.scatter(
-            1 + 0.1 * jitter_rng.normal(size=len(mn_rate_mean_mean[conditions[0]])),
-            mn_rate_mean_mean[conditions[0]],
+            1 + 0.1 * jitter_rng.normal(size=len(simulation_fr[conditions[0]])),
+            simulation_fr[conditions[0]],
         )
         ax.scatter(
-            2 + 0.1 * jitter_rng.normal(size=len(mn_rate_mean_mean[conditions[1]])),
-            mn_rate_mean_mean[conditions[1]],
+            2 + 0.1 * jitter_rng.normal(size=len(simulation_fr[conditions[1]])),
+            simulation_fr[conditions[1]],
         )
         ax.set_xticks([1, 2])
         ax.set_xticklabels([conditions[0], conditions[1]])
-        ax.set_ylabel("MN firing rate (pps)")
+        ax.set_ylabel("Mean MU firing rate per simulation (pps)")
         fig.tight_layout()
         fig.savefig(f"diabetes/mn_firing_rate_comparison_{mode}.png")
         plt.close(fig)
-        # Export the motor-unit observations.
+        # Export one observation per simulation/subject.
         for cond in conditions:
             df = pd.DataFrame(
                 {
-                    "firing_rate": mn_rate_mean_mean[cond].flatten(),
-                    "ISI_CV": mn_rate_mean_CV[cond].flatten(),
+                    "simulation_id": fr_data["simulation_ids"][cond],
+                    "mean_firing_rate": simulation_fr[cond],
+                    "mean_ISI_CV": simulation_isi_cv[cond],
+                    "n_motor_units": simulation_mu_counts[cond],
                 }
             )
             df.to_csv(f"diabetes/mn_firing_rate_{cond}_{mode}.csv", index=False)
@@ -335,11 +327,13 @@ def _(
         df_mean = pd.DataFrame(
             {
                 "condition": conditions,
+                "n_simulations": [len(simulation_fr[cond]) for cond in conditions],
                 "mean_firing_rate": mean_fr,
-                "sem_firing_rate": sem_fr,
+                "sd_firing_rate": sd_fr,
             }
         )
         df_mean.to_csv(f"diabetes/mn_firing_rate_summary_{mode}.csv", index=False)
+
 
     def calculate_fr_data(
         trials,
@@ -368,11 +362,15 @@ def _(
         mn_rate_mean_CV = {}
         mn_rate_trial_mean = {}
         isi_cv_trial_mean = {}
+        simulation_ids = {}
+        n_motor_units = {}
         for condition in conditions_param:
             mn_rate_mean_mean[condition] = np.array([]).reshape(-1, 1)
             mn_rate_mean_CV[condition] = np.array([]).reshape(-1, 1)
             mn_rate_trial_mean[condition] = []
             isi_cv_trial_mean[condition] = []
+            simulation_ids[condition] = []
+            n_motor_units[condition] = []
 
         force_mean = 0
         CV_mean = 0
@@ -393,7 +391,7 @@ def _(
                 if condition == "DPN":
                     force = force[force[:, 0] > t_start_param, 1]
                     force_mean = force_mean + force
-                    CV_mean = CV_mean + force.std() / force.mean()
+                    CV_mean = CV_mean + force.std(ddof=1) / force.mean()
                     n = n + 1
 
                 # Select motor units according to the requested mode.
@@ -430,9 +428,7 @@ def _(
                 mns_rate_mean = compute_fr(
                     selected_neurons, data, t_start_param, t_end_param
                 )
-                ISI_CV, _ = compute_cv(
-                    selected_neurons, data, t_start_param, t_end_param
-                )
+                ISI_CV, _ = compute_cv(selected_neurons, data, t_start_param, t_end_param)
                 ISI_CV = ISI_CV[mns_rate_mean >= 0.01].reshape(-1, 1)
                 mns_rate_mean = mns_rate_mean[mns_rate_mean >= 0.01].reshape(-1, 1)
                 mn_rate_trial_mean[condition].append(
@@ -441,12 +437,12 @@ def _(
                 isi_cv_trial_mean[condition].append(
                     float(ISI_CV.mean()) if ISI_CV.size else np.nan
                 )
+                simulation_ids[condition].append(int(trial))
+                n_motor_units[condition].append(int(mns_rate_mean.size))
                 mn_rate_mean_mean[condition] = np.vstack(
                     (mn_rate_mean_mean[condition], mns_rate_mean)
                 )
-                mn_rate_mean_CV[condition] = np.vstack(
-                    (mn_rate_mean_CV[condition], ISI_CV)
-                )
+                mn_rate_mean_CV[condition] = np.vstack((mn_rate_mean_CV[condition], ISI_CV))
 
         return {
             "mn_rate_mean_mean": mn_rate_mean_mean,
@@ -459,17 +455,44 @@ def _(
                 condition: np.asarray(values, dtype=float)
                 for condition, values in isi_cv_trial_mean.items()
             },
+            "simulation_ids": {
+                condition: np.asarray(values, dtype=int)
+                for condition, values in simulation_ids.items()
+            },
+            "n_motor_units": {
+                condition: np.asarray(values, dtype=int)
+                for condition, values in n_motor_units.items()
+            },
             "selection_seed": selection_seed,
             "force_mean": force_mean / n if n > 0 else 0,
             "CV_mean": CV_mean / n if n > 0 else 0,
         }
 
-    def plot_mn_fr_combined_data(data_regular, data_random, conditions, pd):
-        """Plot side-by-side mode comparisons with inferential summaries."""
+
+    def plot_mn_fr_combined_data(data_regular, data_random, data_truth, conditions, pd):
+        """Plot selection-mode estimates against the all-MU simulation truth."""
         import os
 
         os.makedirs("diabetes/figures", exist_ok=True)
         os.makedirs("diabetes/csv_results", exist_ok=True)
+
+        for condition in conditions:
+            truth_ids = data_truth["simulation_ids"][condition]
+            for mode_name, mode_data in (
+                ("HD-sEMG", data_regular),
+                ("Random", data_random),
+            ):
+                if not np.array_equal(mode_data["simulation_ids"][condition], truth_ids):
+                    raise ValueError(
+                        f"{mode_name} and simulation-truth IDs differ for {condition}."
+                    )
+
+        truth_mean_fr = np.asarray(
+            [
+                np.mean(data_truth["mn_rate_trial_mean"][condition])
+                for condition in conditions
+            ]
+        )
 
         # Create one panel for each motor-unit selection mode.
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6), sharey=True)
@@ -502,11 +525,11 @@ def _(
             return p_values
 
         def plot_data(ax, data, title, seed):
-            """Plot MU rates with simulation-level estimates and bootstrap intervals."""
+            """Plot simulation-level rates with bootstrap intervals."""
             bootstrap_result = bootstrap_mode(data, title, seed, n_resamples)
             isi_cv_result = bootstrap_isi_cv(data, title, seed, n_resamples)
             jitter_rng = np.random.default_rng(seed + 10_000)
-            mn_rates = data["mn_rate_mean_mean"]
+            simulation_rates = data["mn_rate_trial_mean"]
             mean_fr = np.asarray(
                 [
                     bootstrap_result["normal_mean_pps"],
@@ -532,26 +555,38 @@ def _(
                 )
             )
 
-            ax.errorbar(
+            estimate_handle = ax.errorbar(
                 [1, 2],
                 mean_fr,
-                marker="P",
+                marker="+",
                 linestyle="",
                 color="black",
                 markersize=markersize,
+                markeredgewidth=2,
                 yerr=yerr,
                 capsize=5,
+                zorder=4,
             )
-            ax.grid()
+            # ax.grid()
             ax.scatter(
-                1 + 0.1 * jitter_rng.normal(size=mn_rates[conditions[0]].size),
-                mn_rates[conditions[0]].ravel(),
+                1 + 0.1 * jitter_rng.normal(size=simulation_rates[conditions[0]].size),
+                simulation_rates[conditions[0]].ravel(),
                 alpha=0.6,
             )
             ax.scatter(
-                2 + 0.1 * jitter_rng.normal(size=mn_rates[conditions[1]].size),
-                mn_rates[conditions[1]].ravel(),
+                2 + 0.1 * jitter_rng.normal(size=simulation_rates[conditions[1]].size),
+                simulation_rates[conditions[1]].ravel(),
                 alpha=0.6,
+            )
+            truth_handle = ax.scatter(
+                [1, 2],
+                truth_mean_fr,
+                marker="D",
+                s=markersize**2,
+                facecolors="none",
+                edgecolors="black",
+                linewidths=1.8,
+                zorder=5,
             )
             ax.set_ylim(0, 22)
             ax.set_xticks([1, 2])
@@ -564,7 +599,7 @@ def _(
             )
             ax.set_yticks([0, 5, 10, 15, 20])
             if title == f"{modes[0]} Mode":
-                ax.set_ylabel("MN firing rate (pps)", fontsize=fs_label)
+                ax.set_ylabel("Mean MU firing rate per simulation (pps)", fontsize=fs_label)
                 ax.set_yticklabels([0, 5, 10, 15, 20], fontsize=fs_ticklabels)
             ax.set_title(title, fontsize=fs_title)
 
@@ -573,7 +608,14 @@ def _(
             p_values = {"normal_vs_DPN": bootstrap_result["p_value"]}
             p_values = add_significance_bars(ax, p_values)
 
-            return statistic, p_values, bootstrap_result, isi_cv_result
+            return (
+                statistic,
+                p_values,
+                bootstrap_result,
+                isi_cv_result,
+                estimate_handle,
+                truth_handle,
+            )
 
         # HD-sEMG selection mode (left).
         (
@@ -581,6 +623,8 @@ def _(
             p_values_regular,
             bootstrap_regular,
             isi_cv_regular,
+            estimate_handle,
+            truth_handle,
         ) = plot_data(
             ax1,
             data_regular,
@@ -594,6 +638,8 @@ def _(
             p_values_random,
             bootstrap_random,
             isi_cv_random,
+            _estimate_handle_random,
+            _truth_handle_random,
         ) = plot_data(
             ax2,
             data_random,
@@ -601,7 +647,18 @@ def _(
             bootstrap_seeds["Random"],
         )
 
-        fig.tight_layout()
+        fig.legend(
+            handles=[estimate_handle, truth_handle],
+            labels=[
+                "Selection-mode mean (95% BCa CI)",
+                "Mean simulation truth (all MUs)",
+            ],
+            loc="lower center",
+            ncol=2,
+            frameon=False,
+            fontsize=fs_ticklabels,
+        )
+        fig.tight_layout(rect=(0, 0.12, 1, 1))
 
         # Save the combined figure.
         fig.savefig(
@@ -612,13 +669,15 @@ def _(
         plt.show()
         plt.close(fig)
 
-        # Export raw firing-rate and ISI data for both modes.
+        # Export one firing-rate and ISI-CoV mean per simulation/subject.
         for mode, data_dict in [("regular", data_regular), ("random", data_random)]:
             for cond in conditions:
                 df = pd.DataFrame(
                     {
-                        "firing_rate": data_dict["mn_rate_mean_mean"][cond].flatten(),
-                        "ISI_CV": data_dict["mn_rate_mean_CV"][cond].flatten(),
+                        "simulation_id": data_dict["simulation_ids"][cond],
+                        "mean_firing_rate": data_dict["mn_rate_trial_mean"][cond],
+                        "mean_ISI_CV": data_dict["isi_cv_trial_mean"][cond],
+                        "n_motor_units": data_dict["n_motor_units"][cond],
                     }
                 )
                 df.to_csv(
@@ -630,11 +689,14 @@ def _(
         p_values_df = pd.DataFrame(
             {
                 "comparison": ["normal_vs_DPN"],
+                "unit_of_analysis": ["simulation/subject"],
                 "test": ["paired Wilcoxon signed-rank"],
                 "random_selection_seed": [data_random["selection_seed"]],
                 "bootstrap_seed_regular": [bootstrap_seeds["HD-sEMG"]],
                 "bootstrap_seed_random": [bootstrap_seeds["Random"]],
                 "n_resamples": [n_resamples],
+                "n_simulations_regular": [bootstrap_regular["n_simulations"]],
+                "n_simulations_random": [bootstrap_random["n_simulations"]],
                 "wilcoxon_statistic_regular": [statistic_regular],
                 "wilcoxon_statistic_random": [statistic_random],
                 "p_value_regular": [p_values_regular["normal_vs_DPN"]],
@@ -646,12 +708,8 @@ def _(
                 "ci_low_random": [bootstrap_random["difference_ci_low"]],
                 "ci_high_random": [bootstrap_random["difference_ci_high"]],
                 "significant_random": [p_values_random["normal_vs_DPN"] < 0.05],
-                "isi_cv_wilcoxon_statistic_regular": [
-                    isi_cv_regular["wilcoxon_statistic"]
-                ],
-                "isi_cv_wilcoxon_statistic_random": [
-                    isi_cv_random["wilcoxon_statistic"]
-                ],
+                "isi_cv_wilcoxon_statistic_regular": [isi_cv_regular["wilcoxon_statistic"]],
+                "isi_cv_wilcoxon_statistic_random": [isi_cv_random["wilcoxon_statistic"]],
                 "isi_cv_p_value_regular": [isi_cv_regular["p_value"]],
                 "isi_cv_p_value_random": [isi_cv_random["p_value"]],
                 "isi_cv_mean_difference_regular": [isi_cv_regular["DPN_minus_normal"]],
@@ -675,41 +733,22 @@ def _(
             "diabetes/csv_results/mn_firing_rate_p_values_combined.csv"
         )
 
+
     def print_statistics(
-        mn_rate_mean_mean,
-        conditions_param,
+        fr_data,
         stats_module,
-        mn_rate_mean_CV,
-        fr_data=None,
         mode="",
         seed=20260728,
     ):
-        """Print paired firing-rate and ISI-CoV inferential statistics."""
-        if fr_data is None:
-            print(
-                f"ISI-CoV normal: {mn_rate_mean_CV['normal'].mean():.2f} ± "
-                f"{mn_rate_mean_CV['normal'].std(ddof=1):.2f}, ISI-CoV DPN: "
-                f"{mn_rate_mean_CV['DPN'].mean():.2f} ± "
-                f"{mn_rate_mean_CV['DPN'].std(ddof=1):.2f}"
-            )
-            print(
-                f"FR normal: {mn_rate_mean_mean['normal'].mean():.2f} ± "
-                f"{mn_rate_mean_mean['normal'].std(ddof=1):.2f}, FR DPN: "
-                f"{mn_rate_mean_mean['DPN'].mean():.2f} ± "
-                f"{mn_rate_mean_mean['DPN'].std(ddof=1):.2f}"
-            )
-            print("Paired bootstrap skipped: simulation-level means were not provided.")
-            return None
-
-        result = bootstrap_mode(
-            fr_data, mode, seed, n_resamples, stats_module=stats_module
-        )
+        """Print simulation-level firing-rate and ISI-CoV statistics."""
+        result = bootstrap_mode(fr_data, mode, seed, n_resamples, stats_module=stats_module)
         isi_cv_result = bootstrap_isi_cv(
             fr_data, mode, seed, n_resamples, stats_module=stats_module
         )
         print(
-            f"FR simulation means (n={result['n_simulations']} paired simulations): "
-            f"normal {result['normal_mean_pps']:.2f} ± {result['normal_sd_pps']:.2f} "
+            f"FR simulation means (n={result['n_simulations']} paired "
+            f"simulations/subjects): normal {result['normal_mean_pps']:.2f} ± "
+            f"{result['normal_sd_pps']:.2f} "
             f"[95% BCa CI {result['normal_ci_low']:.2f}, "
             f"{result['normal_ci_high']:.2f}]; DPN {result['DPN_mean_pps']:.2f} ± "
             f"{result['DPN_sd_pps']:.2f} [95% BCa CI "
@@ -723,14 +762,13 @@ def _(
             f"W={result['wilcoxon_statistic']:.1f}, p={result['p_value']:.4e}"
         )
         print(
-            f"ISI-CoV simulation means "
-            f"(n={isi_cv_result['n_simulations']} paired simulations): normal "
-            f"{isi_cv_result['normal_mean']:.3f} ± "
+            f"ISI-CoV simulation means (n={isi_cv_result['n_simulations']} paired "
+            f"simulations/subjects): normal {isi_cv_result['normal_mean']:.3f} ± "
             f"{isi_cv_result['normal_sd']:.3f} [95% BCa CI "
             f"{isi_cv_result['normal_ci_low']:.3f}, "
             f"{isi_cv_result['normal_ci_high']:.3f}]; DPN "
-            f"{isi_cv_result['DPN_mean']:.3f} ± "
-            f"{isi_cv_result['DPN_sd']:.3f} [95% BCa CI "
+            f"{isi_cv_result['DPN_mean']:.3f} ± {isi_cv_result['DPN_sd']:.3f} "
+            f"[95% BCa CI "
             f"{isi_cv_result['DPN_ci_low']:.3f}, "
             f"{isi_cv_result['DPN_ci_high']:.3f}]"
         )
@@ -742,8 +780,18 @@ def _(
             f"W={isi_cv_result['wilcoxon_statistic']:.1f}, "
             f"p={isi_cv_result['p_value']:.4e}"
         )
+        mu_counts = fr_data["n_motor_units"]
+        print(
+            "Analyzed MUs per simulation/subject (mean ± SD [range]): "
+            f"normal {mu_counts['normal'].mean():.1f} ± "
+            f"{mu_counts['normal'].std(ddof=1):.1f} "
+            f"[{mu_counts['normal'].min()}, {mu_counts['normal'].max()}]; DPN "
+            f"{mu_counts['DPN'].mean():.1f} ± {mu_counts['DPN'].std(ddof=1):.1f} "
+            f"[{mu_counts['DPN'].min()}, {mu_counts['DPN'].max()}]"
+        )
         result["isi_cv"] = isi_cv_result
         return result
+
 
     def firing_rate(
         spiketrains,
@@ -771,18 +819,23 @@ def _(
         fr[fr < 0] = 0
         return fr, t
 
+
     def bootstrap_mode(
         data, mode, seed=20260728, n_resamples=n_resamples, stats_module=stats
     ):
-        """Estimate paired Normal-DPN firing-rate effects across simulations."""
+        """Estimate paired Normal-DPN firing-rate effects across subjects/simulations."""
         trial_means = data["mn_rate_trial_mean"]
         normal = np.asarray(trial_means["normal"], dtype=float).ravel()
         dpn = np.asarray(trial_means["DPN"], dtype=float).ravel()
 
         if normal.size != dpn.size:
-            raise ValueError(
-                "Normal and DPN must contain the same number of simulations."
-            )
+            raise ValueError("Normal and DPN must contain the same number of simulations.")
+        simulation_ids = data.get("simulation_ids")
+        if simulation_ids is not None:
+            normal_ids = np.asarray(simulation_ids["normal"], dtype=int).ravel()
+            dpn_ids = np.asarray(simulation_ids["DPN"], dtype=int).ravel()
+            if not np.array_equal(normal_ids, dpn_ids):
+                raise ValueError("Normal and DPN simulation IDs must match in order.")
 
         valid_pairs = np.isfinite(normal) & np.isfinite(dpn)
         normal = normal[valid_pairs]
@@ -811,9 +864,7 @@ def _(
         normal_bootstrap = stats_module.bootstrap(
             (normal,), mean_statistic, **bootstrap_options
         )
-        dpn_bootstrap = stats_module.bootstrap(
-            (dpn,), mean_statistic, **bootstrap_options
-        )
+        dpn_bootstrap = stats_module.bootstrap((dpn,), mean_statistic, **bootstrap_options)
         difference_bootstrap = stats_module.bootstrap(
             (normal, dpn),
             mean_difference,
@@ -835,8 +886,9 @@ def _(
             wilcoxon_statistic = float(wilcoxon_result.statistic)
             p_value = float(wilcoxon_result.pvalue)
 
-        return {
+        result = {
             "mode": mode,
+            "unit_of_analysis": "simulation/subject",
             "selection_seed": data.get("selection_seed"),
             "bootstrap_seed": seed,
             "n_resamples": int(n_resamples),
@@ -855,6 +907,8 @@ def _(
             "wilcoxon_statistic": wilcoxon_statistic,
             "p_value": p_value,
         }
+        return result
+
 
     def bootstrap_isi_cv(
         data, mode, seed=20260728, n_resamples=n_resamples, stats_module=stats
@@ -862,6 +916,7 @@ def _(
         """Estimate paired Normal-DPN effects on simulation-level mean ISI-CoV."""
         isi_data = {
             "mn_rate_trial_mean": data["isi_cv_trial_mean"],
+            "simulation_ids": data.get("simulation_ids"),
             "selection_seed": data.get("selection_seed"),
         }
         result = bootstrap_mode(
@@ -873,6 +928,7 @@ def _(
         )
         return {
             "mode": mode,
+            "unit_of_analysis": result["unit_of_analysis"],
             "selection_seed": result["selection_seed"],
             "bootstrap_seed": result["bootstrap_seed"],
             "n_resamples": result["n_resamples"],
@@ -891,9 +947,7 @@ def _(
             "wilcoxon_statistic": result["wilcoxon_statistic"],
             "p_value": result["p_value"],
         }
-
     return (
-        bootstrap_isi_cv,
         bootstrap_mode,
         calculate_fr_data,
         compute_cv,
@@ -908,10 +962,61 @@ def _(
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    ## All-motor-unit simulation-truth reference
+
+    For each simulated subject, the mean firing rate across the complete active-MU population is the trial-specific simulation truth. The condition means across these subject-specific true values are used as references in both selection-mode panels below.
+    """)
+    return
+
+
+@app.cell
+def _(
+    batch_name,
+    bootstrap_seeds,
+    calculate_fr_data,
+    conditions,
+    path,
+    pd,
+    print_statistics,
+    stats,
+    t_end,
+    t_start,
+    trials,
+):
+    # Calculate the trial-specific simulation truth from every active motor unit.
+    print("=" * 60)
+    print("=== SIMULATION TRUTH (all motor units) ===")
+    print("=" * 60)
+
+    force_level = 20
+    data_all = calculate_fr_data(
+        trials,
+        "all",
+        pd,
+        force_level,
+        conditions,
+        path,
+        batch_name,
+        t_start,
+        t_end,
+    )
+    print_statistics(
+        data_all,
+        stats,
+        mode="Simulation truth (all motor units)",
+        seed=bootstrap_seeds["All motor units"],
+    )
+    return (data_all,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## Firing rates at 20% MVC
 
-    Individual points represent motor-unit observations; estimates, confidence intervals, and tests for firing rate and ISI-CoV use paired simulation-level means.
+    Each simulation represents one subject. Group means, SDs, confidence intervals, and tests for firing rate and ISI-CoV therefore use one mean per simulation; raw motor-unit values are retained only for explicitly descriptive analyses.
     Random-mode selections contain 10 unique motor units per simulation and use the configured fixed selection seed.
+    In both panels, hollow diamonds show the condition mean of the trial-specific simulation truth calculated from all active MUs.
     """)
     return
 
@@ -933,7 +1038,13 @@ def _(
     t_end,
     t_start,
 ):
-    def fr_analysis(trials, mode="regular", criteria=criteria, mn_number=mn_number):
+    def fr_analysis(
+        trials,
+        data_truth,
+        mode="regular",
+        criteria=criteria,
+        mn_number=mn_number,
+    ):
         """Run the primary firing-rate analysis for one or both selection modes."""
         force_level = 20
         # Compute and compare both selection modes when requested.
@@ -964,38 +1075,35 @@ def _(
                 selection_seed=selection_seeds["randomly"],
             )
             # Plot both modes and report their statistics.
-            plot_mn_fr_combined_data(data_regular, data_random, conditions, pd)
+            plot_mn_fr_combined_data(data_regular, data_random, data_truth, conditions, pd)
             print("Selection criteria:", criteria)
             print(f"Random selection seed: {selection_seeds['randomly']}")
             print("=== HD-sEMG MODE ===")
             print_statistics(
-                data_regular["mn_rate_mean_mean"],
-                conditions,
+                data_regular,
                 stats,
-                data_regular["mn_rate_mean_CV"],
-                fr_data=data_regular,
                 mode="HD-sEMG",
                 seed=bootstrap_seeds["HD-sEMG"],
             )
             print("=== RANDOM MODE ===")
             print_statistics(
-                data_random["mn_rate_mean_mean"],
-                conditions,
+                data_random,
                 stats,
-                data_random["mn_rate_mean_CV"],
-                fr_data=data_random,
                 mode="Random",
                 seed=bootstrap_seeds["Random"],
             )
             return data_regular, data_random
-
     return (fr_analysis,)
 
 
 @app.cell
-def _(fr_analysis, trials):
+def _(data_all, fr_analysis, trials):
     # Compare HD-sEMG and random selection side by side.
-    data_regular, data_random = fr_analysis(trials=trials, mode="combined")
+    data_regular, data_random = fr_analysis(
+        trials=trials,
+        data_truth=data_all,
+        mode="combined",
+    )
     return data_random, data_regular
 
 
@@ -1101,34 +1209,18 @@ def _(
 
     print("\n--- HD-sEMG Mode (lowest FR from filtered pool) ---")
     print_statistics(
-        _data_hdemg["mn_rate_mean_mean"],
-        conditions,
+        _data_hdemg,
         stats,
-        _data_hdemg["mn_rate_mean_CV"],
-        fr_data=_data_hdemg,
         mode="HD-sEMG",
         seed=bootstrap_seeds["HD-sEMG"],
     )
-    print(
-        f"Number of MUs — normal: {len(_data_hdemg['mn_rate_mean_mean']['normal'])}, "
-        f"DPN: {len(_data_hdemg['mn_rate_mean_mean']['DPN'])}"
-    )
-
     print("\n--- Filtered-Random Mode (random from filtered pool) ---")
     print_statistics(
-        _data_filtered_random["mn_rate_mean_mean"],
-        conditions,
+        _data_filtered_random,
         stats,
-        _data_filtered_random["mn_rate_mean_CV"],
-        fr_data=_data_filtered_random,
         mode="Filtered-Random",
         seed=bootstrap_seeds["Filtered-Random"],
     )
-    print(
-        f"Number of MUs — normal: {len(_data_filtered_random['mn_rate_mean_mean']['normal'])}, "
-        f"DPN: {len(_data_filtered_random['mn_rate_mean_mean']['DPN'])}"
-    )
-
     # Compare modes within each condition.
     print("\n--- Cross-mode comparison (HD-sEMG vs Filtered-Random) ---")
     for _cond in conditions:
@@ -1145,8 +1237,9 @@ def _(
                 method="auto",
             )
             print(
-                f"  {_cond}: FR HD-sEMG={_hdemg_fr.mean():.2f}±{_hdemg_fr.std():.2f} vs "
-                f"Filtered-Random={_frand_fr.mean():.2f}±{_frand_fr.std():.2f} "
+                f"  {_cond} simulation means (n={len(_hdemg_fr)}): FR "
+                f"HD-sEMG={_hdemg_fr.mean():.2f}±{_hdemg_fr.std(ddof=1):.2f} vs "
+                f"Filtered-Random={_frand_fr.mean():.2f}±{_frand_fr.std(ddof=1):.2f} "
                 f"(paired Wilcoxon W={float(_wilcoxon.statistic):.1f}, "
                 f"p={float(_wilcoxon.pvalue):.4e})"
             )
@@ -1156,75 +1249,9 @@ def _(
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## All-motor-unit reference analysis
-    """)
-    return
-
-
-@app.cell
-def _(
-    batch_name,
-    bootstrap_seeds,
-    calculate_fr_data,
-    conditions,
-    np,
-    path,
-    pd,
-    print_statistics,
-    stats,
-    t_end,
-    t_start,
-    trials,
-):
-    # Report the reference analysis without motor-unit selection.
-    print("=" * 60)
-    print("=== ALL MOTOR UNITS (no selection criteria) ===")
-    print("=" * 60)
-
-    force_level = 20
-    data_all = calculate_fr_data(
-        trials,
-        "all",
-        pd,
-        force_level,
-        conditions,
-        path,
-        batch_name,
-        t_start,
-        t_end,
-    )
-    print_statistics(
-        data_all["mn_rate_mean_mean"],
-        conditions,
-        stats,
-        data_all["mn_rate_mean_CV"],
-        fr_data=data_all,
-        mode="All motor units",
-        seed=bootstrap_seeds["All motor units"],
-    )
-    print(
-        f"\nNumber of MUs — normal: {len(data_all['mn_rate_mean_mean']['normal'])}, "
-        f"DPN: {len(data_all['mn_rate_mean_mean']['DPN'])}"
-    )
-    print(
-        f"Mean force (DPN): {data_all['force_mean'].mean():.4f}"
-        if isinstance(data_all["force_mean"], np.ndarray)
-        else ""
-    )
-    print(
-        f"CV force (DPN): {data_all['CV_mean']:.4f}"
-        if isinstance(data_all["CV_mean"], float)
-        else ""
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
     ## Force-production statistics
 
-    Each simulation contributes one steady-state mean force and force coefficient of variation (CoV) per group. Normal–DPN estimates use paired trial IDs, with 95% BCa bootstrap intervals and two-sided Wilcoxon signed-rank p-values.
+    Each simulation represents one subject and contributes one steady-state mean force and force coefficient of variation (CoV) per group. Normal–DPN estimates use paired simulation IDs, with 95% BCa bootstrap intervals and two-sided Wilcoxon signed-rank p-values.
     """)
     return
 
@@ -1265,6 +1292,7 @@ def _(
             float(result.confidence_interval.low),
             float(result.confidence_interval.high),
         )
+
 
     def paired_bootstrap_summary(first, second, seed, n_resamples):
         """Summarize paired samples with bootstrap intervals and Wilcoxon p-values."""
@@ -1335,6 +1363,7 @@ def _(
             "p_value": p_value,
         }
 
+
     def compute_force_statistics(
         trials_param,
         batch_name_param,
@@ -1364,7 +1393,7 @@ def _(
                     mean_f = float(force_steady.mean())
                     if not np.isfinite(mean_f) or mean_f <= 0:
                         raise ValueError("mean steady-state force must be positive")
-                    cv_f = float(force_steady.std() / mean_f)
+                    cv_f = float(force_steady.std(ddof=1) / mean_f)
                     if not np.isfinite(cv_f):
                         raise ValueError("force CoV is not finite")
 
@@ -1393,6 +1422,7 @@ def _(
                 "MVC": MVC,
             }
         return results
+
 
     def print_force_stats(
         results,
@@ -1423,9 +1453,7 @@ def _(
             return None
 
         first_force = [first_trials[trial]["mean_force"] for trial in common_trial_ids]
-        second_force = [
-            second_trials[trial]["mean_force"] for trial in common_trial_ids
-        ]
+        second_force = [second_trials[trial]["mean_force"] for trial in common_trial_ids]
         first_cv = [first_trials[trial]["force_cv"] for trial in common_trial_ids]
         second_cv = [second_trials[trial]["force_cv"] for trial in common_trial_ids]
 
@@ -1443,8 +1471,8 @@ def _(
             cv_group = cv_summary[group_key]
             available_trials = results[condition]["n_trials"]
             print(
-                f"\n--- {condition} (n={force_summary['n_pairs']} paired; "
-                f"{available_trials} available trials) ---"
+                f"\n--- {condition} (n={force_summary['n_pairs']} paired "
+                f"simulations/subjects; {available_trials} available) ---"
             )
             print(
                 f"  Mean force: {force_group['mean']:.4f} ± {force_group['sd']:.4f} "
@@ -1478,8 +1506,8 @@ def _(
             f"p={cv_summary['p_value']:.4e}"
         )
 
-        # Between-trials variability (within each condition)
-        print("\n--- Between-trials variability ---")
+        # Between-subject variability (one simulation per subject).
+        print("\n--- Between-simulation/subject variability ---")
         for condition in conditions_param:
             group_key = group_keys[condition]
             force_group = force_summary[group_key]
@@ -1490,16 +1518,14 @@ def _(
                 else np.nan
             )
             cv_between_trials_cv = (
-                cv_group["sd"] / cv_group["mean"] * 100
-                if cv_group["mean"] > 0
-                else np.nan
+                cv_group["sd"] / cv_group["mean"] * 100 if cv_group["mean"] > 0 else np.nan
             )
             print(
-                f"  {condition}: CoV of mean force across trials = "
+                f"  {condition}: CoV of mean force across simulations/subjects = "
                 f"{cv_between_trials_force:.2f}%"
             )
             print(
-                f"  {condition}: CoV of force CoV across trials = "
+                f"  {condition}: CoV of force CoV across simulations/subjects = "
                 f"{cv_between_trials_cv:.2f}%"
             )
 
@@ -1508,6 +1534,7 @@ def _(
             "mean_force": force_summary,
             "force_cv": cv_summary,
         }
+
 
     # === 20% MVC (main batch) ===
     force_level_20 = 20
@@ -1562,6 +1589,8 @@ def _(
 def _(mo):
     mo.md(r"""
     ## Firing-rate and ISI-variability relationship
+
+    This scatterplot is an explicitly descriptive motor-unit-level view; it is not used for group-level inference.
     """)
     return
 
@@ -1616,17 +1645,13 @@ def _(
                 mns_rate_mean = compute_fr(selected_neurons, data, t_start, t_end)
                 ISI_CV, _ = compute_cv(selected_neurons, data, t_start, t_end)
                 ISI_CV = ISI_CV[mns_rate_mean >= 0.01].reshape(-1, 1)
-                selected_neurons = selected_neurons[mns_rate_mean >= 0.01].reshape(
-                    -1, 1
-                )
+                selected_neurons = selected_neurons[mns_rate_mean >= 0.01].reshape(-1, 1)
 
                 mns_rate_mean = mns_rate_mean[mns_rate_mean >= 0.01].reshape(-1, 1)
                 mn_rate_mean_mean[condition] = np.vstack(
                     (mn_rate_mean_mean[condition], mns_rate_mean)
                 )
-                mn_rate_mean_CV[condition] = np.vstack(
-                    (mn_rate_mean_CV[condition], ISI_CV)
-                )
+                mn_rate_mean_CV[condition] = np.vstack((mn_rate_mean_CV[condition], ISI_CV))
                 neurons_index[condition] = np.vstack(
                     (neurons_index[condition], selected_neurons.reshape(-1, 1))
                 )
@@ -1667,7 +1692,7 @@ def _(
         ax.set_xlabel("ISI CoV", fontsize=fs_label)
         ax.set_ylabel("Mean firing rate (pps)", fontsize=fs_label)
         ax.tick_params(axis="both", labelsize=fs_ticklabels)
-        ax.grid(True, linestyle="--", alpha=0.7)
+        # ax.grid(True, linestyle="--", alpha=0.7)
         # Legend with fixed colors (no patches)
         legend_labels = ["Normal", "DPN"]
         legend_colors = ["blue", "orange"]
@@ -1703,7 +1728,7 @@ def _(
         axins2.xaxis.set_major_locator(MaxNLocator(nbins=5))
         axins2.yaxis.set_major_locator(MaxNLocator(nbins=5))
         axins2.tick_params(axis="both", which="major", labelsize=fs_ticklabels - 2)
-        axins2.grid(True, linestyle="--", alpha=0.7)
+        # axins2.grid(True, linestyle="--", alpha=0.7)
         fig.savefig("diabetes/figures/fr_cv_scatter_full.png", bbox_inches="tight")
         plt.show()
         # Export the plotted data.
@@ -1717,7 +1742,6 @@ def _(
                 }
             )
             df.to_csv(f"diabetes/csv_results/fr_cv_{cond}.csv", index=False)
-
     return (fr_cv,)
 
 
@@ -1822,7 +1846,7 @@ def _(
             )
             ax.set_ylabel("Motor Unit ID", fontsize=fs_label)
             ax.tick_params(axis="both", labelsize=fs_ticklabels)
-            ax.grid(True, alpha=0.3)
+            # ax.grid(True, alpha=0.3)
 
             # Show the legend only once.
             if i == 0:
@@ -1853,6 +1877,7 @@ def _(
             f"diabetes/figures/what_mn_selected_combined_trial_{trial}.png"
         )
 
+
     def index_mn_selected(criteria=criteria, mn_number=mn_number):
         """Report the selected motor-unit index range across simulations."""
 
@@ -1879,10 +1904,7 @@ def _(
                 min_index = min(min_index, min(selected_neurons))
                 max_index = max(max_index, max(selected_neurons))
 
-            print(
-                f"Condition {condition}: min index={min_index}, max index={max_index}"
-            )
-
+            print(f"Condition {condition}: min index={min_index}, max index={max_index}")
     return index_mn_selected, what_mn_selected
 
 
@@ -1902,6 +1924,8 @@ def _(index_mn_selected):
 def _(mo):
     mo.md(r"""
     ## ISI-variability distributions
+
+    These histograms describe individual motor units pooled across simulations; they are not used for subject-level estimates or tests.
     """)
     return
 
@@ -2008,7 +2032,7 @@ def _(
             )
             ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
             ax.tick_params(axis="both", labelsize=fs_ticklabels)
-            ax.grid(True, alpha=0.3)
+            # ax.grid(True, alpha=0.3)
 
             # Mark the selection threshold.
             ax.axvline(x=0.3, color="red", linestyle="--", alpha=0.8, linewidth=2)
@@ -2016,15 +2040,12 @@ def _(
         # Adjust and save the figure.
         fig.tight_layout()
 
-        filename = (
-            f"diabetes/figures/isi_cov_histograms_all_units_{mode}_{batch_name}.png"
-        )
+        filename = f"diabetes/figures/isi_cov_histograms_all_units_{mode}_{batch_name}.png"
         fig.savefig(filename, dpi=300, bbox_inches="tight")
         plt.show()
         plt.close(fig)
 
         print(f"ISI CoV histograms for all motor units saved to: {filename}")
-
     return (isi_cov_histograms,)
 
 
@@ -2087,19 +2108,11 @@ def _(
         print("\n--- HD-sEMG Mode ---")
         print("Selection criteria:", criteria)
         print_statistics(
-            data_mvc10_regular["mn_rate_mean_mean"],
-            conditions,
+            data_mvc10_regular,
             stats,
-            data_mvc10_regular["mn_rate_mean_CV"],
-            fr_data=data_mvc10_regular,
             mode="10% MVC HD-sEMG",
             seed=bootstrap_seeds["10% MVC HD-sEMG"],
         )
-        print(
-            f"Number of MUs — normal: {len(data_mvc10_regular['mn_rate_mean_mean']['normal'])}, "
-            f"DPN: {len(data_mvc10_regular['mn_rate_mean_mean']['DPN'])}"
-        )
-
         # Seeded random selection of ten active motor units
         data_mvc10_random = calculate_fr_data(
             mvc10_trials,
@@ -2117,19 +2130,11 @@ def _(
         print("\n--- Random Mode ---")
         print(f"Selection seed: {selection_seeds['mvc10_randomly']}")
         print_statistics(
-            data_mvc10_random["mn_rate_mean_mean"],
-            conditions,
+            data_mvc10_random,
             stats,
-            data_mvc10_random["mn_rate_mean_CV"],
-            fr_data=data_mvc10_random,
             mode="10% MVC Random",
             seed=bootstrap_seeds["10% MVC Random"],
         )
-        print(
-            f"Number of MUs — normal: {len(data_mvc10_random['mn_rate_mean_mean']['normal'])}, "
-            f"DPN: {len(data_mvc10_random['mn_rate_mean_mean']['DPN'])}"
-        )
-
         # All motor units
         data_mvc10_all = calculate_fr_data(
             mvc10_trials,
@@ -2144,17 +2149,10 @@ def _(
         )
         print("\n--- All Motor Units ---")
         print_statistics(
-            data_mvc10_all["mn_rate_mean_mean"],
-            conditions,
+            data_mvc10_all,
             stats,
-            data_mvc10_all["mn_rate_mean_CV"],
-            fr_data=data_mvc10_all,
             mode="10% MVC all motor units",
             seed=bootstrap_seeds["10% MVC all motor units"],
-        )
-        print(
-            f"Number of MUs — normal: {len(data_mvc10_all['mn_rate_mean_mean']['normal'])}, "
-            f"DPN: {len(data_mvc10_all['mn_rate_mean_mean']['DPN'])}"
         )
     except Exception as e:
         print(f"10% MVC data not yet available: {e}")
@@ -2186,19 +2184,11 @@ def _(
         print("\n--- HD-sEMG Mode ---")
         print("Selection criteria:", criteria)
         print_statistics(
-            data_mvc50_regular["mn_rate_mean_mean"],
-            conditions,
+            data_mvc50_regular,
             stats,
-            data_mvc50_regular["mn_rate_mean_CV"],
-            fr_data=data_mvc50_regular,
             mode="50% MVC HD-sEMG",
             seed=bootstrap_seeds["50% MVC HD-sEMG"],
         )
-        print(
-            f"Number of MUs — normal: {len(data_mvc50_regular['mn_rate_mean_mean']['normal'])}, "
-            f"DPN: {len(data_mvc50_regular['mn_rate_mean_mean']['DPN'])}"
-        )
-
         # Seeded random selection of ten active motor units
         data_mvc50_random = calculate_fr_data(
             mvc50_trials,
@@ -2216,19 +2206,11 @@ def _(
         print("\n--- Random Mode ---")
         print(f"Selection seed: {selection_seeds['mvc50_randomly']}")
         print_statistics(
-            data_mvc50_random["mn_rate_mean_mean"],
-            conditions,
+            data_mvc50_random,
             stats,
-            data_mvc50_random["mn_rate_mean_CV"],
-            fr_data=data_mvc50_random,
             mode="50% MVC Random",
             seed=bootstrap_seeds["50% MVC Random"],
         )
-        print(
-            f"Number of MUs — normal: {len(data_mvc50_random['mn_rate_mean_mean']['normal'])}, "
-            f"DPN: {len(data_mvc50_random['mn_rate_mean_mean']['DPN'])}"
-        )
-
         # All motor units
         data_mvc50_all = calculate_fr_data(
             mvc50_trials,
@@ -2243,17 +2225,10 @@ def _(
         )
         print("\n--- All Motor Units ---")
         print_statistics(
-            data_mvc50_all["mn_rate_mean_mean"],
-            conditions,
+            data_mvc50_all,
             stats,
-            data_mvc50_all["mn_rate_mean_CV"],
-            fr_data=data_mvc50_all,
             mode="50% MVC all motor units",
             seed=bootstrap_seeds["50% MVC all motor units"],
-        )
-        print(
-            f"Number of MUs — normal: {len(data_mvc50_all['mn_rate_mean_mean']['normal'])}, "
-            f"DPN: {len(data_mvc50_all['mn_rate_mean_mean']['DPN'])}"
         )
     except Exception as e:
         print(f"50% MVC data not yet available: {e}")
