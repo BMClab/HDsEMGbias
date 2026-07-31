@@ -1,0 +1,2169 @@
+{
+  "version": 1,
+  "kind": "google-docs-trusted-read-context",
+  "target": {
+    "documentId": "1q9JPv3uQm6c1VW3Gh_aCiSs1MNyepxrVoqJ3N6-XzAU",
+    "title": "HDsEMG_rev_gdocs",
+    "revisionId": "AIroW377RH-rFMfIveTOkKUnOY_8yeFouxt54hzQ3v_bQsHozThuY15bc4wBKuLzMuEWhxh4_r0EeE_vFjKT6qG8CJCpqc69AhUwzCLbYMM",
+    "documentUrl": "https://docs.google.com/document/d/1q9JPv3uQm6c1VW3Gh_aCiSs1MNyepxrVoqJ3N6-XzAU",
+    "selectedTabId": "t.0"
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "derivedControlInventory": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "nativeElementCounts": {
+      "inlineObjectElement": 5,
+      "equation": 93
+    },
+    "tabsScanned": [
+      "t.0"
+    ],
+    "controls": [],
+    "nativeElements": [
+      {
+        "type": "inlineObjectElement",
+        "startIndex": 9230,
+        "endIndex": 9231,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[26]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 9230,
+          "endIndex": 9232,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {
+          "inlineObjectId": "i.0",
+          "textStyle": {}
+        }
+      },
+      {
+        "type": "equation",
+        "startIndex": 10254,
+        "endIndex": 10263,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[31]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 10011,
+          "endIndex": 11166,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 10265,
+        "endIndex": 10274,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[31]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 10011,
+          "endIndex": 11166,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 10371,
+        "endIndex": 10384,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[31]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 10011,
+          "endIndex": 11166,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 10386,
+        "endIndex": 10399,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[31]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 10011,
+          "endIndex": 11166,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 10566,
+        "endIndex": 10584,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[31]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 10011,
+          "endIndex": 11166,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 10753,
+        "endIndex": 10762,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[31]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 10011,
+          "endIndex": 11166,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11288,
+        "endIndex": 11297,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[33]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11167,
+          "endIndex": 11548,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11299,
+        "endIndex": 11308,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[33]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11167,
+          "endIndex": 11548,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11329,
+        "endIndex": 11342,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[33]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11167,
+          "endIndex": 11548,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11344,
+        "endIndex": 11357,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[33]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11167,
+          "endIndex": 11548,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11387,
+        "endIndex": 11405,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[33]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11167,
+          "endIndex": 11548,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11457,
+        "endIndex": 11460,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[33]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11167,
+          "endIndex": 11548,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11577,
+        "endIndex": 11586,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[35].table.rows[1].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11577,
+          "endIndex": 11591,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 11549,
+            "rowIndex": 1,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11607,
+        "endIndex": 11616,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[35].table.rows[2].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11607,
+          "endIndex": 11621,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 11549,
+            "rowIndex": 2,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11632,
+        "endIndex": 11645,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[35].table.rows[3].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11632,
+          "endIndex": 11651,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 11549,
+            "rowIndex": 3,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11663,
+        "endIndex": 11676,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[35].table.rows[4].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11663,
+          "endIndex": 11681,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 11549,
+            "rowIndex": 4,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11691,
+        "endIndex": 11700,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[35].table.rows[5].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11691,
+          "endIndex": 11706,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 11549,
+            "rowIndex": 5,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11718,
+        "endIndex": 11727,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[35].table.rows[6].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11718,
+          "endIndex": 11733,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 11549,
+            "rowIndex": 6,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 11746,
+        "endIndex": 11749,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[35].table.rows[7].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 11746,
+          "endIndex": 11750,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 11549,
+            "rowIndex": 7,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "inlineObjectElement",
+        "startIndex": 19306,
+        "endIndex": 19307,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[51]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 19306,
+          "endIndex": 19308,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {
+          "inlineObjectId": "i.1",
+          "textStyle": {}
+        }
+      },
+      {
+        "type": "inlineObjectElement",
+        "startIndex": 21372,
+        "endIndex": 21373,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[57]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 21372,
+          "endIndex": 21374,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {
+          "inlineObjectId": "i.2",
+          "textStyle": {}
+        }
+      },
+      {
+        "type": "inlineObjectElement",
+        "startIndex": 22787,
+        "endIndex": 22788,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[62]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 22787,
+          "endIndex": 22789,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {
+          "inlineObjectId": "i.3",
+          "textStyle": {}
+        }
+      },
+      {
+        "type": "inlineObjectElement",
+        "startIndex": 23705,
+        "endIndex": 23706,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[67]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 23705,
+          "endIndex": 23707,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {
+          "inlineObjectId": "kix.pdzorptanl8e",
+          "textStyle": {}
+        }
+      },
+      {
+        "type": "equation",
+        "startIndex": 34357,
+        "endIndex": 34364,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[1].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34357,
+          "endIndex": 34365,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 1,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34388,
+        "endIndex": 34398,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[1].cells[2].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34388,
+          "endIndex": 34399,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 1,
+            "columnIndex": 2
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34404,
+        "endIndex": 34411,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[2].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34404,
+          "endIndex": 34412,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 2,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34431,
+        "endIndex": 34437,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[2].cells[2].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34431,
+          "endIndex": 34438,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 2,
+            "columnIndex": 2
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34446,
+        "endIndex": 34449,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[3].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34446,
+          "endIndex": 34450,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 3,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34491,
+        "endIndex": 34494,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[4].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34491,
+          "endIndex": 34495,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 4,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34528,
+        "endIndex": 34531,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[5].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34528,
+          "endIndex": 34532,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 5,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34576,
+        "endIndex": 34583,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[6].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34576,
+          "endIndex": 34584,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 6,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34632,
+        "endIndex": 34640,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[7].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34632,
+          "endIndex": 34641,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 7,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34678,
+        "endIndex": 34686,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[8].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34678,
+          "endIndex": 34687,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 8,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34733,
+        "endIndex": 34741,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[9].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34733,
+          "endIndex": 34742,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 9,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34788,
+        "endIndex": 34795,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[10].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34788,
+          "endIndex": 34796,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 10,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34849,
+        "endIndex": 34856,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[11].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34849,
+          "endIndex": 34857,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 11,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34908,
+        "endIndex": 34913,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[12].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34908,
+          "endIndex": 34914,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 12,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34948,
+        "endIndex": 34951,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[13].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34948,
+          "endIndex": 34952,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 13,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 34993,
+        "endIndex": 34996,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[14].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34993,
+          "endIndex": 34997,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 14,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35038,
+        "endIndex": 35041,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[15].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35038,
+          "endIndex": 35042,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 15,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35087,
+        "endIndex": 35090,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[16].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35087,
+          "endIndex": 35091,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 16,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35139,
+        "endIndex": 35142,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[17].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35139,
+          "endIndex": 35143,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 17,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35193,
+        "endIndex": 35196,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[18].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35193,
+          "endIndex": 35197,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 18,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35242,
+        "endIndex": 35249,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[19].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35242,
+          "endIndex": 35250,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 19,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35284,
+        "endIndex": 35291,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[20].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35284,
+          "endIndex": 35292,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 20,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35330,
+        "endIndex": 35337,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[21].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35330,
+          "endIndex": 35338,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 21,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35366,
+        "endIndex": 35370,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[21].cells[2].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35366,
+          "endIndex": 35371,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 21,
+            "columnIndex": 2
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35376,
+        "endIndex": 35383,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[22].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35376,
+          "endIndex": 35384,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 22,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35416,
+        "endIndex": 35420,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[22].cells[2].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35416,
+          "endIndex": 35421,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 22,
+            "columnIndex": 2
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35426,
+        "endIndex": 35435,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[23].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35426,
+          "endIndex": 35436,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 23,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35479,
+        "endIndex": 35488,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[24].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35479,
+          "endIndex": 35489,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 24,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35535,
+        "endIndex": 35546,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[25].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35535,
+          "endIndex": 35547,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 25,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35573,
+        "endIndex": 35581,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[25].cells[3].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35573,
+          "endIndex": 35582,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 25,
+            "columnIndex": 3
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35584,
+        "endIndex": 35595,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[26].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35584,
+          "endIndex": 35596,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 26,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 35637,
+        "endIndex": 35648,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[88].table.rows[27].cells[0].content[0]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 35637,
+          "endIndex": 35649,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": {
+            "tableStartIndex": 34309,
+            "rowIndex": 27,
+            "columnIndex": 0
+          }
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 36082,
+        "endIndex": 36169,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[91]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36082,
+          "endIndex": 36170,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 36170,
+        "endIndex": 36257,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[92]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36170,
+          "endIndex": 36258,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 36272,
+        "endIndex": 36305,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[93]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36258,
+          "endIndex": 36687,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 36309,
+        "endIndex": 36316,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[93]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36258,
+          "endIndex": 36687,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 36687,
+        "endIndex": 36812,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[94]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36687,
+          "endIndex": 36813,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 36846,
+        "endIndex": 36849,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[95]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36813,
+          "endIndex": 36921,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 36851,
+        "endIndex": 36854,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[95]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36813,
+          "endIndex": 36921,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 36860,
+        "endIndex": 36863,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[95]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36813,
+          "endIndex": 36921,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 36921,
+        "endIndex": 36963,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[96]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36921,
+          "endIndex": 36964,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 36969,
+        "endIndex": 36972,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[97]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36964,
+          "endIndex": 37072,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 36999,
+        "endIndex": 37002,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[97]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36964,
+          "endIndex": 37072,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37004,
+        "endIndex": 37007,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[97]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36964,
+          "endIndex": 37072,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37011,
+        "endIndex": 37014,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[97]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36964,
+          "endIndex": 37072,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37030,
+        "endIndex": 37033,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[97]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36964,
+          "endIndex": 37072,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37038,
+        "endIndex": 37041,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[97]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 36964,
+          "endIndex": 37072,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37072,
+        "endIndex": 37142,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[98]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 37072,
+          "endIndex": 37213,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37147,
+        "endIndex": 37212,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[98]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 37072,
+          "endIndex": 37213,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37213,
+        "endIndex": 37261,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[99]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 37213,
+          "endIndex": 37315,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37266,
+        "endIndex": 37314,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[99]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 37213,
+          "endIndex": 37315,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37315,
+        "endIndex": 37384,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[100]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 37315,
+          "endIndex": 37428,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37388,
+        "endIndex": 37427,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[100]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 37315,
+          "endIndex": 37428,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37461,
+        "endIndex": 37464,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[101]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 37428,
+          "endIndex": 37512,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37512,
+        "endIndex": 37547,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[102]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 37512,
+          "endIndex": 37548,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37553,
+        "endIndex": 37591,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[104]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 37553,
+          "endIndex": 37656,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37595,
+        "endIndex": 37655,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[104]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 37553,
+          "endIndex": 37656,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37670,
+        "endIndex": 37678,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[105]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 37656,
+          "endIndex": 37829,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 37778,
+        "endIndex": 37788,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[105]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 37656,
+          "endIndex": 37829,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 38518,
+        "endIndex": 38627,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[107]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 38518,
+          "endIndex": 38628,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 38650,
+        "endIndex": 38661,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[108]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 38628,
+          "endIndex": 38949,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 38685,
+        "endIndex": 38688,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[108]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 38628,
+          "endIndex": 38949,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 38712,
+        "endIndex": 38723,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[108]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 38628,
+          "endIndex": 38949,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 38766,
+        "endIndex": 38769,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[108]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 38628,
+          "endIndex": 38949,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 38771,
+        "endIndex": 38778,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[108]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 38628,
+          "endIndex": 38949,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 38825,
+        "endIndex": 38828,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[108]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 38628,
+          "endIndex": 38949,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 38837,
+        "endIndex": 38849,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[108]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 38628,
+          "endIndex": 38949,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 38984,
+        "endIndex": 38987,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[109]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 38949,
+          "endIndex": 39279,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 39279,
+        "endIndex": 39307,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[110]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 39279,
+          "endIndex": 39308,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 39324,
+        "endIndex": 39336,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[111]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 39308,
+          "endIndex": 39505,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 39387,
+        "endIndex": 39400,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[111]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 39308,
+          "endIndex": 39505,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 39453,
+        "endIndex": 39470,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[111]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 39308,
+          "endIndex": 39505,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 39784,
+        "endIndex": 39805,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[112]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 39505,
+          "endIndex": 40051,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      },
+      {
+        "type": "equation",
+        "startIndex": 39832,
+        "endIndex": 39857,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[112]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 39505,
+          "endIndex": 40051,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {}
+      }
+    ]
+  },
+  "editGuidance": {
+    "advisoryOnly": true,
+    "requiresTargetedPreservation": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope.",
+    "warnings": []
+  }
+}

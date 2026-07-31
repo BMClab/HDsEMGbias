@@ -57,6 +57,7 @@ def _(np, sys):
     conditions = ["normal", "DPN"]
 
     modes = ["HD-sEMG", "Random"]
+    color = {conditions[0]: "tab:blue", conditions[1]: "tab:orange"}
 
     fs_ticklabels = 16
     fs_label = 16
@@ -95,6 +96,7 @@ def _(np, sys):
     return (
         batch_name,
         bootstrap_seeds,
+        color,
         conditions,
         criteria,
         fontweight,
@@ -126,6 +128,7 @@ def _(mo):
 def _(
     bootstrap_seeds,
     butter,
+    color,
     criteria,
     filtfilt,
     fs_label,
@@ -524,7 +527,7 @@ def _(
                 )
             return p_values
 
-        def plot_data(ax, data, title, seed):
+        def plot_data(ax, data, title, seed, truth_line_width=None):
             """Plot simulation-level rates with bootstrap intervals."""
             bootstrap_result = bootstrap_mode(data, title, seed, n_resamples)
             isi_cv_result = bootstrap_isi_cv(data, title, seed, n_resamples)
@@ -555,6 +558,20 @@ def _(
                 )
             )
 
+            normal_jitter = 1 + 0.1 * jitter_rng.normal(
+                size=simulation_rates[conditions[0]].size
+            )
+            dpn_jitter = 2 + 0.1 * jitter_rng.normal(
+                size=simulation_rates[conditions[1]].size
+            )
+            if truth_line_width is None:
+                # Preserve the HD-sEMG Normal line and use its width everywhere.
+                truth_line_width = float(np.ptp(normal_jitter))
+                truth_xmin = [normal_jitter.min(), 2 - truth_line_width / 2]
+                truth_xmax = [normal_jitter.max(), 2 + truth_line_width / 2]
+            else:
+                truth_xmin = [1 - truth_line_width / 2, 2 - truth_line_width / 2]
+                truth_xmax = [1 + truth_line_width / 2, 2 + truth_line_width / 2]
             estimate_handle = ax.errorbar(
                 [1, 2],
                 mean_fr,
@@ -569,23 +586,23 @@ def _(
             )
             # ax.grid()
             ax.scatter(
-                1 + 0.1 * jitter_rng.normal(size=simulation_rates[conditions[0]].size),
+                normal_jitter,
                 simulation_rates[conditions[0]].ravel(),
                 alpha=0.6,
+                color=color[conditions[0]],
             )
             ax.scatter(
-                2 + 0.1 * jitter_rng.normal(size=simulation_rates[conditions[1]].size),
+                dpn_jitter,
                 simulation_rates[conditions[1]].ravel(),
                 alpha=0.6,
+                color=color[conditions[0]],
             )
-            truth_handle = ax.scatter(
-                [1, 2],
+            truth_handle = ax.hlines(
                 truth_mean_fr,
-                marker="D",
-                s=markersize**2,
-                facecolors="none",
-                edgecolors="black",
-                linewidths=1.8,
+                xmin=truth_xmin,
+                xmax=truth_xmax,
+                colors="red",
+                linewidths=3,
                 zorder=5,
             )
             ax.set_ylim(0, 22)
@@ -615,6 +632,7 @@ def _(
                 isi_cv_result,
                 estimate_handle,
                 truth_handle,
+                truth_line_width,
             )
 
         # HD-sEMG selection mode (left).
@@ -625,6 +643,7 @@ def _(
             isi_cv_regular,
             estimate_handle,
             truth_handle,
+            truth_line_width,
         ) = plot_data(
             ax1,
             data_regular,
@@ -640,11 +659,13 @@ def _(
             isi_cv_random,
             _estimate_handle_random,
             _truth_handle_random,
+            _truth_line_width_random,
         ) = plot_data(
             ax2,
             data_random,
             f"{modes[1]} Mode",
             bootstrap_seeds["Random"],
+            truth_line_width=truth_line_width,
         )
 
         fig.legend(
@@ -1016,7 +1037,7 @@ def _(mo):
 
     Each simulation represents one subject. Group means, SDs, confidence intervals, and tests for firing rate and ISI-CoV therefore use one mean per simulation; raw motor-unit values are retained only for explicitly descriptive analyses.
     Random-mode selections contain 10 unique motor units per simulation and use the configured fixed selection seed.
-    In both panels, hollow diamonds show the condition mean of the trial-specific simulation truth calculated from all active MUs.
+    In both panels, equal-width red horizontal lines show the condition mean of the trial-specific simulation truth calculated from all active MUs. Their width matches the jitter span of the HD-sEMG Normal observations.
     """)
     return
 
@@ -1623,7 +1644,7 @@ def _(
 
         mn_rate_mean_mean = {condition: np.empty((0, 1)) for condition in conditions}
         mn_rate_mean_CV = {condition: np.empty((0, 1)) for condition in conditions}
-        color = {conditions[0]: "Blues", conditions[1]: "Oranges"}
+        colormap = {conditions[0]: "Blues", conditions[1]: "Oranges"}
         neurons_index = {condition: np.empty((0, 1)) for condition in conditions}
 
         for trial in trials:
@@ -1675,7 +1696,7 @@ def _(
             mn_rate_mean_CV[conditions[0]],
             mn_rate_mean_mean[conditions[0]],
             c=neurons_index[conditions[0]],
-            cmap=color[conditions[0]],
+            cmap=colormap[conditions[0]],
             vmin=1,
             vmax=250,
         )
@@ -1683,7 +1704,7 @@ def _(
             mn_rate_mean_CV[conditions[1]],
             mn_rate_mean_mean[conditions[1]],
             c=neurons_index[conditions[1]],
-            cmap=color[conditions[1]],
+            cmap=colormap[conditions[1]],
             vmin=1,
             vmax=250,
         )
@@ -1711,7 +1732,7 @@ def _(
             mn_rate_mean_CV[conditions[0]],
             mn_rate_mean_mean[conditions[0]],
             c=neurons_index[conditions[0]],
-            cmap=color[conditions[0]],
+            cmap=colormap[conditions[0]],
             vmin=1,
             vmax=250,
         )
@@ -1719,7 +1740,7 @@ def _(
             mn_rate_mean_CV[conditions[1]],
             mn_rate_mean_mean[conditions[1]],
             c=neurons_index[conditions[1]],
-            cmap=color[conditions[1]],
+            cmap=colormap[conditions[1]],
             vmin=1,
             vmax=250,
         )
@@ -1994,19 +2015,19 @@ def _(
             cov_data = np.array(all_cov_data[condition])
 
             # Plot the distribution.
-            n_bins = np.arange(0, 0.95, 0.05)
+            n_bins = np.linspace(0, 1.0, 21)
             ax.hist(
                 cov_data,
                 bins=n_bins,
                 alpha=0.7,
-                color=colors[condition],
+                color=colors[conditions[0]],
                 edgecolor="black",
                 linewidth=0.5,
             )
-            ax.set_xlim(0, 0.9)
+            ax.set_xlim(0, 1.0)
 
             # Shade the region that satisfies the selection threshold.
-            ax.axvspan(0, 0.3, alpha=0.3, color=colors[condition], zorder=0)
+            ax.axvspan(0, 0.3, alpha=0.3, color=colors[conditions[1]], zorder=0)
 
             # Count motor units below the threshold.
             count_low_cov = np.sum(cov_data < 0.3)

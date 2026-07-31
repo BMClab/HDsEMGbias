@@ -1,0 +1,60 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read",
+  "status": "complete",
+  "outputDir": "/home/marcos/github/bmclab/HDsEMGbias/bridge/trusted-read-results-figure4",
+  "target": {
+    "documentId": "1q9JPv3uQm6c1VW3Gh_aCiSs1MNyepxrVoqJ3N6-XzAU",
+    "title": "HDsEMG_rev_gdocs",
+    "revisionId": "AIroW35EFRBkXKI_uOG-qDjyMWpKkNBBiq20pXxDL7pTHLWd_Y_0QWdMRhtkoEHnAxJdwe8Ozi9wmWFCQmi1-nUcEDIijMi740Hns_Gp9LI",
+    "documentUrl": "https://docs.google.com/document/d/1q9JPv3uQm6c1VW3Gh_aCiSs1MNyepxrVoqJ3N6-XzAU",
+    "selectedTabId": "t.0"
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {
+      "inlineObjectElement": 5,
+      "equation": 93
+    },
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "files": {
+    "document_result": {
+      "path": "/home/marcos/github/bmclab/HDsEMGbias/bridge/trusted-read-results-figure4/document-result.json",
+      "bytes": 709961,
+      "sha256": "898d696c317e37cb9b9e36fb39d82b093815d23224f4505b8eb4c0a65c5ade0d"
+    },
+    "control_inventory": {
+      "path": "/home/marcos/github/bmclab/HDsEMGbias/bridge/trusted-read-results-figure4/control-inventory.json",
+      "bytes": 59127,
+      "sha256": "d91cdd72e7632ae8045f6e814367f56ec62944c65adc27e7601bfd6824e70f92"
+    },
+    "document_outline": {
+      "path": "/home/marcos/github/bmclab/HDsEMGbias/bridge/trusted-read-results-figure4/document-outline.json",
+      "bytes": 191514,
+      "sha256": "c15abec6bcf1fba6e41ef93097b92e1d9bf79379b15bbf21defab02909dfb686"
+    },
+    "document_text": {
+      "path": "/home/marcos/github/bmclab/HDsEMGbias/bridge/trusted-read-results-figure4/document-text.md",
+      "bytes": 71827,
+      "sha256": "39dfddfa73682a9d8af0525867106300cfd4a52f06757e296e7c39ea5af64dc6"
+    },
+    "receipt": {
+      "path": "/home/marcos/github/bmclab/HDsEMGbias/bridge/trusted-read-results-figure4/receipt.json",
+      "bytes": 1011,
+      "sha256": "acd864220903095144a6d9d215175ee0305c3a2c8982d2d6c9d0922f9675d8a4"
+    }
+  },
+  "error": null
+}

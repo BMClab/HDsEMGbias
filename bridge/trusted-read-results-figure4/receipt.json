@@ -1,0 +1,32 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read-receipt",
+  "status": "complete",
+  "target": {
+    "documentId": "1q9JPv3uQm6c1VW3Gh_aCiSs1MNyepxrVoqJ3N6-XzAU",
+    "title": "HDsEMG_rev_gdocs",
+    "revisionId": "AIroW35EFRBkXKI_uOG-qDjyMWpKkNBBiq20pXxDL7pTHLWd_Y_0QWdMRhtkoEHnAxJdwe8Ozi9wmWFCQmi1-nUcEDIijMi740Hns_Gp9LI",
+    "documentUrl": "https://docs.google.com/document/d/1q9JPv3uQm6c1VW3Gh_aCiSs1MNyepxrVoqJ3N6-XzAU",
+    "selectedTabId": "t.0"
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {
+      "inlineObjectElement": 5,
+      "equation": 93
+    },
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "error": null
+}
