@@ -1,0 +1,59 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read",
+  "status": "complete",
+  "outputDir": "/home/marcos/github/bmclab/HDsEMGbias/bridge/trusted-read-v2-20260803-final-prewrite",
+  "target": {
+    "documentId": "1nHSJ8t90oEvxLQ1dZhF-E8HsKcfKzIktMI5ZSNZNU08",
+    "title": "HDsEMG_rev_gdocs_v2",
+    "revisionId": "AIroW37U6KTUeuD-lZ1hSBkw3YHZU0-UAjHdQdFy7yYIkjCPxROMjJj3IebvroVmpS0gCjcZe0h76VC8KbQZ2fY4l_AvaxAHjNa1FGk48_I",
+    "documentUrl": "https://docs.google.com/document/d/1nHSJ8t90oEvxLQ1dZhF-E8HsKcfKzIktMI5ZSNZNU08",
+    "selectedTabId": "t.0"
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {
+      "inlineObjectElement": 6
+    },
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "files": {
+    "document_result": {
+      "path": "/home/marcos/github/bmclab/HDsEMGbias/bridge/trusted-read-v2-20260803-final-prewrite/document-result.json",
+      "bytes": 787890,
+      "sha256": "a6444aa23cd84ad0847d0dafd3a27e0277ea4897de513b344e4afe55913775e4"
+    },
+    "control_inventory": {
+      "path": "/home/marcos/github/bmclab/HDsEMGbias/bridge/trusted-read-v2-20260803-final-prewrite/control-inventory.json",
+      "bytes": 4984,
+      "sha256": "afde2e0479f0f522e6762e2f38da2cac5329e3b9824c1604434d79b691369703"
+    },
+    "document_outline": {
+      "path": "/home/marcos/github/bmclab/HDsEMGbias/bridge/trusted-read-v2-20260803-final-prewrite/document-outline.json",
+      "bytes": 196475,
+      "sha256": "15c428f2a29002b78a1e1ad1f4c9ec87990ab743ad2dfa2a9583c058f3cac208"
+    },
+    "document_text": {
+      "path": "/home/marcos/github/bmclab/HDsEMGbias/bridge/trusted-read-v2-20260803-final-prewrite/document-text.md",
+      "bytes": 75980,
+      "sha256": "b4317f777783c63b651d021beb17d65ac2288c275a3458d9f4889f84146cfd33"
+    },
+    "receipt": {
+      "path": "/home/marcos/github/bmclab/HDsEMGbias/bridge/trusted-read-v2-20260803-final-prewrite/receipt.json",
+      "bytes": 992,
+      "sha256": "fd1ef775b81bd93ccb6d9017e59fd7c2f61178e676deb90ec9958ea53b6edd8b"
+    }
+  },
+  "error": null
+}
