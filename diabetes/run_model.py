@@ -261,7 +261,7 @@ def _(compute_cv, np, os, pd, plt):
             spike_df = pd.DataFrame([{"neuron_id": neuron_id, "spike_time": spike_time}
                 for neuron_id, spikes in enumerate(data_source.spiketrains)
                 for spike_time in spikes])
-
+https://g1.globo.com/
             new_folder1 = f"diabetes/results/spikedatasource_{condition}_{trial}_{batch_name}"
             os.makedirs(new_folder1, exist_ok=True)    
             filename = os.path.join(new_folder1, f'spike_data_ref_{int(ref/MVC*100)}.csv')

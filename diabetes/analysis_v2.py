@@ -9,8 +9,7 @@ def _(mo):
     mo.md(r"""
     # Computational modeling reveals a potential selection bias in high-density surface electromyography analysis of diabetic neuropathy
 
-    > Renato Naville Watanabe, Marcos Duarte
-    > Federal University of ABC, Brazil
+    > Renato Naville Watanabe and Marcos Duarte, Federal University of ABC, Brazil
     """)
     return
 
@@ -90,6 +89,7 @@ def _(np, sys):
         "10% MVC all motor units": 20260111,
         "50% MVC HD-sEMG": 20260113,
         "50% MVC all motor units": 20260114,
+        "Force-level robustness": 20260117,
     }
     return (
         batch_name,
@@ -102,11 +102,10 @@ def _(np, sys):
         fs_legend,
         fs_ticklabels,
         fs_title,
-        markersize,
         mn_number,
         modes,
-        n_selection_seeds,
         n_resamples,
+        n_selection_seeds,
         path,
         selection_seeds,
         t_end,
@@ -133,7 +132,6 @@ def _(
     fs_label,
     fs_ticklabels,
     fs_title,
-    markersize,
     mn_number,
     modes,
     n_resamples,
@@ -300,9 +298,7 @@ def _(
                     "n_motor_units": simulation_mu_counts[cond],
                 }
             )
-            df.to_csv(
-                f"diabetes/mn_firing_rate_{cond}_{mode}_v2.csv", index=False
-            )
+            df.to_csv(f"diabetes/mn_firing_rate_{cond}_{mode}_v2.csv", index=False)
 
         df_mean = pd.DataFrame(
             {
@@ -312,9 +308,7 @@ def _(
                 "sd_firing_rate": sd_fr,
             }
         )
-        df_mean.to_csv(
-            f"diabetes/mn_firing_rate_summary_{mode}_v2.csv", index=False
-        )
+        df_mean.to_csv(f"diabetes/mn_firing_rate_summary_{mode}_v2.csv", index=False)
 
 
     def calculate_fr_data(
@@ -335,9 +329,7 @@ def _(
 
         if mode == "hdsemg" and selection_seed is None:
             raise ValueError(f"selection_seed is required for mode '{mode}'.")
-        selection_rng = (
-            np.random.default_rng(selection_seed) if mode == "hdsemg" else None
-        )
+        selection_rng = np.random.default_rng(selection_seed) if mode == "hdsemg" else None
 
         mn_rate_mean_mean = {}
         mn_rate_mean_CV = {}
@@ -436,11 +428,11 @@ def _(
 
     def configure_primary_fr_axis(ax, tick_fontsize):
         """Set Figure 2's vertical display and return its bracket height."""
-        ticks = [8, 10, 12, 14, 16, 18]
-        ax.set_ylim(8, 18)
+        ticks = [8, 10, 12, 14, 16]
+        ax.set_ylim(8, 16)
         ax.set_yticks(ticks)
         ax.set_yticklabels(ticks, fontsize=tick_fontsize)
-        return 17
+        return 15
 
 
     def add_primary_fr_summaries(
@@ -502,9 +494,7 @@ def _(
                 linewidth=2,
             )[0],
         )
-        significance = (
-            "***" if p_value < 0.001 else "**" if p_value < 0.01 else "*"
-        )
+        significance = "***" if p_value < 0.001 else "**" if p_value < 0.01 else "*"
         significance_text = ax.text(
             1.5,
             significance_y + 0.1,
@@ -528,9 +518,7 @@ def _(
                 data_hdemg["simulation_ids"][condition],
                 data_truth["simulation_ids"][condition],
             ):
-                raise ValueError(
-                    f"HD-sEMG and simulation-truth IDs differ for {condition}."
-                )
+                raise ValueError(f"HD-sEMG and simulation-truth IDs differ for {condition}.")
 
         bootstrap_hdemg = bootstrap_mode(
             data_hdemg,
@@ -575,9 +563,7 @@ def _(
         normal_jitter = 1 + 0.1 * jitter_rng.normal(
             size=simulation_rates[conditions[0]].size
         )
-        dpn_jitter = 2 + 0.1 * jitter_rng.normal(
-            size=simulation_rates[conditions[1]].size
-        )
+        dpn_jitter = 2 + 0.1 * jitter_rng.normal(size=simulation_rates[conditions[1]].size)
         truth_line_width = float(np.ptp(normal_jitter))
 
         fig, ax = plt.subplots(figsize=(7, 6))
@@ -914,7 +900,6 @@ def _(
             "p_value": result["p_value"],
         }
     return (
-        bootstrap_mode,
         calculate_fr_data,
         compute_cv,
         compute_fr,
@@ -966,13 +951,13 @@ def _(
         t_start,
         t_end,
     )
-    print_statistics(
+    result_truth = print_statistics(
         data_truth,
         stats,
         mode="Simulation truth (all motor units)",
         seed=bootstrap_seeds["All motor units"],
     )
-    return (data_truth,)
+    return data_truth, result_truth
 
 
 @app.cell(hide_code=True)
@@ -1025,14 +1010,14 @@ def _(
     print(f"Selection criteria: {criteria}")
     print(f"Motor units per simulation: {mn_number}")
     print(f"Selection seed: {selection_seeds['hdsemg']}")
-    print_statistics(
+    result_hdemg = print_statistics(
         data_hdemg,
         stats,
         mode="HD-sEMG",
         seed=bootstrap_seeds["HD-sEMG"],
     )
     plot_mn_fr_combined_data(data_hdemg, data_truth, conditions, pd)
-    return (data_hdemg,)
+    return data_hdemg, result_hdemg
 
 
 @app.cell(hide_code=True)
@@ -1341,7 +1326,7 @@ def _(
         print(f"20% MVC force data error: {e}")
 
     # === 10% MVC ===
-    _mvc10_trials = np.arange(10)
+    _mvc10_trials = np.arange(50)
     _force_level_10 = 10
     try:
         _results_10 = compute_force_statistics(
@@ -1357,7 +1342,7 @@ def _(
         print(f"10% MVC force data not yet available: {e}")
 
     # === 50% MVC ===
-    _mvc50_trials = np.arange(10)
+    _mvc50_trials = np.arange(50)
     _force_level_50 = 50
     try:
         _results_50 = compute_force_statistics(
@@ -1371,7 +1356,7 @@ def _(
         )
     except Exception as e:
         print(f"50% MVC force data not yet available: {e}")
-    return
+    return (paired_bootstrap_summary,)
 
 
 @app.cell(hide_code=True)
@@ -1518,9 +1503,7 @@ def _(
         axins2.yaxis.set_major_locator(MaxNLocator(nbins=5))
         axins2.tick_params(axis="both", which="major", labelsize=fs_ticklabels - 2)
         # axins2.grid(True, linestyle="--", alpha=0.7)
-        fig.savefig(
-            "diabetes/figures/fr_cv_scatter_full_v2.png", bbox_inches="tight"
-        )
+        fig.savefig("diabetes/figures/fr_cv_scatter_full_v2.png", bbox_inches="tight")
         plt.show()
         # Export the plotted data.
         os.makedirs("diabetes", exist_ok=True)
@@ -1664,9 +1647,7 @@ def _(
         fig.subplots_adjust(top=0.93)
 
         os.makedirs("diabetes/figures", exist_ok=True)
-        figure_path = (
-            f"diabetes/figures/what_mn_selected_combined_trial_{trial}_v2.png"
-        )
+        figure_path = f"diabetes/figures/what_mn_selected_combined_trial_{trial}_v2.png"
         fig.savefig(
             figure_path,
             dpi=300,
@@ -1705,12 +1686,8 @@ def _(
                     mn_number=mn_number,
                     rng=selection_rng,
                 )
-                min_index[condition] = min(
-                    min_index[condition], int(selected_neurons.min())
-                )
-                max_index[condition] = max(
-                    max_index[condition], int(selected_neurons.max())
-                )
+                min_index[condition] = min(min_index[condition], int(selected_neurons.min()))
+                max_index[condition] = max(max_index[condition], int(selected_neurons.max()))
                 sorted_ids = np.sort(selected_neurons.astype(int))
                 selection_records.append(
                     {
@@ -1887,9 +1864,7 @@ def _(
         # Adjust and save the figure.
         fig.tight_layout()
 
-        filename = (
-            f"diabetes/figures/isi_cov_histograms_all_units_{batch_name}_v2.png"
-        )
+        filename = f"diabetes/figures/isi_cov_histograms_all_units_{batch_name}_v2.png"
         fig.savefig(filename, dpi=300, bbox_inches="tight")
         plt.show()
         plt.close(fig)
@@ -1907,15 +1882,158 @@ def _(isi_cov_histograms, trials):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## Firing rates at other MVC levels (10% and 50%)
+    ## Robustness across contraction intensities
 
-    Each force level is evaluated using the same randomized HD-sEMG selection
-    contract as the primary analysis and the known all-active-MU simulation truth.
-    Because only 10 paired simulations are available at each additional force
-    level, these analyses are exploratory; the across-selection-seed stability
-    analysis below quantifies their sensitivity to the particular 10-MU draw.
+    The 20% MVC condition was designated as the primary reference analysis. The
+    same simulation-level analysis was repeated at 10% and 50% MVC using 50
+    paired simulated subjects per force level to assess whether the direction
+    and magnitude of the findings were robust across contraction intensities.
+
+    For firing rate and ISI-CoV, the analysis estimates the paired DPN-minus-Normal
+    effect at each MVC, quantifies the difference between the randomized HD-sEMG
+    estimate and the all-active-MU simulation truth, and tests force-level
+    dependence using a within-subject Friedman test followed by all three paired
+    MVC contrasts with Holm adjustment. Trial identifiers must match within each
+    condition pair and across contraction intensities.
     """)
     return
+
+
+@app.cell
+def _(np):
+    def paired_subject_effects(data, value_key, conditions_param):
+        """Return aligned condition values and the subject-level DPN-Normal effect."""
+        first_condition, second_condition = conditions_param
+        values = data[value_key]
+        simulation_ids = data["simulation_ids"]
+
+        first = np.asarray(values[first_condition], dtype=float).ravel()
+        second = np.asarray(values[second_condition], dtype=float).ravel()
+        first_ids = np.asarray(simulation_ids[first_condition], dtype=int).ravel()
+        second_ids = np.asarray(simulation_ids[second_condition], dtype=int).ravel()
+
+        if first.size != first_ids.size or second.size != second_ids.size:
+            raise ValueError("Each condition value must have one simulation ID.")
+        if first.size != second.size:
+            raise ValueError("Conditions must contain the same number of simulations.")
+        if not np.array_equal(first_ids, second_ids):
+            raise ValueError("Condition simulation IDs must match in order.")
+
+        valid_pairs = np.isfinite(first) & np.isfinite(second)
+        if valid_pairs.sum() < 2:
+            raise ValueError("At least two complete subject pairs are required.")
+
+        first = first[valid_pairs]
+        second = second[valid_pairs]
+        return {
+            "simulation_ids": first_ids[valid_pairs],
+            "first": first,
+            "second": second,
+            "effect": second - first,
+        }
+
+
+    def holm_adjust_pvalues(p_values):
+        """Return Holm family-wise-error adjusted p-values in original order."""
+        p_values = np.asarray(p_values, dtype=float)
+        if p_values.ndim != 1 or p_values.size == 0:
+            raise ValueError("p_values must be a non-empty one-dimensional sequence.")
+        if np.any(~np.isfinite(p_values)) or np.any((p_values < 0) | (p_values > 1)):
+            raise ValueError("p_values must be finite and between zero and one.")
+
+        order = np.argsort(p_values)
+        adjusted = np.empty_like(p_values)
+        running_maximum = 0.0
+        n_tests = int(p_values.size)
+        for rank, original_index in enumerate(order):
+            candidate = (n_tests - rank) * p_values[original_index]
+            running_maximum = max(running_maximum, float(candidate))
+            adjusted[original_index] = min(running_maximum, 1.0)
+        return adjusted
+
+
+    def summarize_force_level_dependence(
+        effects_by_force,
+        paired_summary,
+        stats_module,
+        holm_adjuster,
+        seed,
+        n_resamples,
+        reference_force=20,
+    ):
+        """Test whether paired condition effects differ across MVC levels."""
+        force_levels = sorted(int(force) for force in effects_by_force)
+        if len(force_levels) < 3:
+            raise ValueError("At least three MVC levels are required.")
+        if reference_force not in force_levels:
+            raise ValueError("The reference MVC must be present.")
+
+        reference_ids = np.asarray(
+            effects_by_force[reference_force]["simulation_ids"], dtype=int
+        )
+        for force_level in force_levels:
+            force_ids = np.asarray(
+                effects_by_force[force_level]["simulation_ids"], dtype=int
+            )
+            if not np.array_equal(reference_ids, force_ids):
+                raise ValueError("Simulation IDs must match across MVC levels.")
+
+        effect_arrays = [
+            np.asarray(effects_by_force[force]["effect"], dtype=float)
+            for force in force_levels
+        ]
+        if all(np.allclose(effect_arrays[0], values) for values in effect_arrays[1:]):
+            friedman_statistic = 0.0
+            friedman_p_value = 1.0
+        else:
+            friedman_result = stats_module.friedmanchisquare(*effect_arrays)
+            friedman_statistic = float(friedman_result.statistic)
+            friedman_p_value = float(friedman_result.pvalue)
+
+        nonreference_forces = [force for force in force_levels if force != reference_force]
+        comparison_pairs = [(reference_force, force) for force in nonreference_forces]
+        for index, first_force in enumerate(nonreference_forces):
+            for second_force in nonreference_forces[index + 1 :]:
+                comparison_pairs.append((first_force, second_force))
+
+        contrasts = []
+        for comparison_index, (first_force, second_force) in enumerate(comparison_pairs):
+            summary = paired_summary(
+                effects_by_force[first_force]["effect"],
+                effects_by_force[second_force]["effect"],
+                seed + comparison_index * 10,
+                n_resamples,
+            )
+            contrasts.append(
+                {
+                    "first_force_mvc": int(first_force),
+                    "second_force_mvc": int(second_force),
+                    "contrast_label": f"{second_force}_minus_{first_force}",
+                    "n_pairs": int(summary["n_pairs"]),
+                    "effect_contrast": float(summary["difference"]),
+                    "contrast_ci_low": float(summary["difference_ci"][0]),
+                    "contrast_ci_high": float(summary["difference_ci"][1]),
+                    "wilcoxon_statistic": float(summary["wilcoxon_statistic"]),
+                    "raw_p_value": float(summary["p_value"]),
+                }
+            )
+
+        adjusted = holm_adjuster([contrast["raw_p_value"] for contrast in contrasts])
+        for contrast, adjusted_p_value in zip(contrasts, adjusted):
+            contrast["holm_adjusted_p_value"] = float(adjusted_p_value)
+
+        return {
+            "n_subjects": int(reference_ids.size),
+            "force_levels_mvc": force_levels,
+            "friedman_statistic": friedman_statistic,
+            "friedman_p_value": friedman_p_value,
+            "contrasts": contrasts,
+        }
+    return (
+        holm_adjust_pvalues,
+        paired_subject_effects,
+        summarize_force_level_dependence,
+    )
 
 
 @app.cell
@@ -1935,7 +2053,7 @@ def _(
     t_start,
 ):
     # === Analysis for 10% MVC simulations ===
-    mvc10_trials = np.arange(10)
+    mvc10_trials = np.arange(50)
     mvc10_batch = "mvc10"
     mvc10_force_level = 10  # int(0.1 * 100)
 
@@ -1960,7 +2078,7 @@ def _(
     print("\n--- Randomized HD-sEMG selection ---")
     print("Selection criteria:", criteria)
     print(f"Selection seed: {selection_seeds['mvc10_hdsemg']}")
-    _result_mvc10_hdemg = print_statistics(
+    result_mvc10_hdemg = print_statistics(
         data_mvc10_hdemg,
         stats,
         mode="10% MVC HD-sEMG",
@@ -1979,7 +2097,7 @@ def _(
         t_end,
     )
     print("\n--- Simulation truth (all active MUs) ---")
-    _result_mvc10_truth = print_statistics(
+    result_mvc10_truth = print_statistics(
         data_mvc10_truth,
         stats,
         mode="10% MVC all motor units",
@@ -1987,7 +2105,7 @@ def _(
     )
 
     # === Analysis for 50% MVC simulations ===
-    mvc50_trials = np.arange(10)
+    mvc50_trials = np.arange(50)
     mvc50_batch = "mvc50"
     mvc50_force_level = 50  # int(0.5 * 100)
 
@@ -2012,7 +2130,7 @@ def _(
     print("\n--- Randomized HD-sEMG selection ---")
     print("Selection criteria:", criteria)
     print(f"Selection seed: {selection_seeds['mvc50_hdsemg']}")
-    _result_mvc50_hdemg = print_statistics(
+    result_mvc50_hdemg = print_statistics(
         data_mvc50_hdemg,
         stats,
         mode="50% MVC HD-sEMG",
@@ -2031,7 +2149,7 @@ def _(
         t_end,
     )
     print("\n--- Simulation truth (all active MUs) ---")
-    _result_mvc50_truth = print_statistics(
+    result_mvc50_truth = print_statistics(
         data_mvc50_truth,
         stats,
         mode="50% MVC all motor units",
@@ -2040,10 +2158,10 @@ def _(
 
     _additional_force_rows = []
     for _force_level, _estimate, _result in (
-        (10, "randomized_hdsemg", _result_mvc10_hdemg),
-        (10, "simulation_truth_all_active_motor_units", _result_mvc10_truth),
-        (50, "randomized_hdsemg", _result_mvc50_hdemg),
-        (50, "simulation_truth_all_active_motor_units", _result_mvc50_truth),
+        (10, "randomized_hdsemg", result_mvc10_hdemg),
+        (10, "simulation_truth_all_active_motor_units", result_mvc10_truth),
+        (50, "randomized_hdsemg", result_mvc50_hdemg),
+        (50, "simulation_truth_all_active_motor_units", result_mvc50_truth),
     ):
         _row = {"force_level_mvc": _force_level, "estimate": _estimate}
         _row.update(
@@ -2053,18 +2171,419 @@ def _(
                 if _key != "isi_cv"
             }
         )
-        _row.update(
-            {
-                f"isi_cv_{_key}": _value
-                for _key, _value in _result["isi_cv"].items()
-            }
-        )
+        _row.update({f"isi_cv_{_key}": _value for _key, _value in _result["isi_cv"].items()})
         _additional_force_rows.append(_row)
 
     pd.DataFrame(_additional_force_rows).to_csv(
         "diabetes/csv_results/additional_force_firing_rate_summary_v2.csv",
         index=False,
     )
+    return (
+        data_mvc10_hdemg,
+        data_mvc10_truth,
+        data_mvc50_hdemg,
+        data_mvc50_truth,
+        result_mvc10_hdemg,
+        result_mvc10_truth,
+        result_mvc50_hdemg,
+        result_mvc50_truth,
+    )
+
+
+@app.cell
+def _(
+    bootstrap_seeds,
+    conditions,
+    data_hdemg,
+    data_mvc10_hdemg,
+    data_mvc10_truth,
+    data_mvc50_hdemg,
+    data_mvc50_truth,
+    data_truth,
+    fontweight,
+    fs_label,
+    fs_legend,
+    fs_ticklabels,
+    fs_title,
+    holm_adjust_pvalues,
+    n_resamples,
+    np,
+    os,
+    paired_bootstrap_summary,
+    paired_subject_effects,
+    pd,
+    plt,
+    result_hdemg,
+    result_mvc10_hdemg,
+    result_mvc10_truth,
+    result_mvc50_hdemg,
+    result_mvc50_truth,
+    result_truth,
+    stats,
+    summarize_force_level_dependence,
+):
+    os.makedirs("diabetes/figures", exist_ok=True)
+    os.makedirs("diabetes/csv_results", exist_ok=True)
+
+    _data_by_estimate = {
+        "randomized_hdsemg": {
+            10: data_mvc10_hdemg,
+            20: data_hdemg,
+            50: data_mvc50_hdemg,
+        },
+        "simulation_truth_all_active_motor_units": {
+            10: data_mvc10_truth,
+            20: data_truth,
+            50: data_mvc50_truth,
+        },
+    }
+    _result_by_estimate = {
+        "randomized_hdsemg": {
+            10: result_mvc10_hdemg,
+            20: result_hdemg,
+            50: result_mvc50_hdemg,
+        },
+        "simulation_truth_all_active_motor_units": {
+            10: result_mvc10_truth,
+            20: result_truth,
+            50: result_mvc50_truth,
+        },
+    }
+    _outcomes = (
+        ("firing_rate", "mn_rate_trial_mean", "pps"),
+        ("isi_cv", "isi_cv_trial_mean", "unitless"),
+    )
+    _seed_base = int(bootstrap_seeds["Force-level robustness"])
+
+
+    def _standardized_result(result, outcome):
+        if outcome == "firing_rate":
+            return {
+                "n_pairs": result["n_simulations"],
+                "normal_mean": result["normal_mean_pps"],
+                "normal_sd": result["normal_sd_pps"],
+                "normal_ci_low": result["normal_ci_low"],
+                "normal_ci_high": result["normal_ci_high"],
+                "dpn_mean": result["DPN_mean_pps"],
+                "dpn_sd": result["DPN_sd_pps"],
+                "dpn_ci_low": result["DPN_ci_low"],
+                "dpn_ci_high": result["DPN_ci_high"],
+                "condition_effect": result["DPN_minus_normal_pps"],
+                "effect_ci_low": result["difference_ci_low"],
+                "effect_ci_high": result["difference_ci_high"],
+                "wilcoxon_statistic": result["wilcoxon_statistic"],
+                "raw_p_value": result["p_value"],
+                "selection_seed": result["selection_seed"],
+            }
+
+        isi_result = result["isi_cv"]
+        return {
+            "n_pairs": isi_result["n_simulations"],
+            "normal_mean": isi_result["normal_mean"],
+            "normal_sd": isi_result["normal_sd"],
+            "normal_ci_low": isi_result["normal_ci_low"],
+            "normal_ci_high": isi_result["normal_ci_high"],
+            "dpn_mean": isi_result["DPN_mean"],
+            "dpn_sd": isi_result["DPN_sd"],
+            "dpn_ci_low": isi_result["DPN_ci_low"],
+            "dpn_ci_high": isi_result["DPN_ci_high"],
+            "condition_effect": isi_result["DPN_minus_normal"],
+            "effect_ci_low": isi_result["difference_ci_low"],
+            "effect_ci_high": isi_result["difference_ci_high"],
+            "wilcoxon_statistic": isi_result["wilcoxon_statistic"],
+            "raw_p_value": isi_result["p_value"],
+            "selection_seed": isi_result["selection_seed"],
+        }
+
+
+    _summary_rows = []
+    _subject_rows = []
+    for _outcome, _value_key, _unit in _outcomes:
+        for _estimate, _force_results in _result_by_estimate.items():
+            _estimate_rows = []
+            for _force_level in (10, 20, 50):
+                _standardized = _standardized_result(_force_results[_force_level], _outcome)
+                _row = {
+                    "outcome": _outcome,
+                    "outcome_unit": _unit,
+                    "estimate": _estimate,
+                    "force_level_mvc": _force_level,
+                    "primary_reference": _force_level == 20,
+                    "analysis_role": (
+                        "primary_reference"
+                        if _force_level == 20
+                        else "force_level_robustness"
+                    ),
+                }
+                _row.update(_standardized)
+                _estimate_rows.append(_row)
+
+                _paired = paired_subject_effects(
+                    _data_by_estimate[_estimate][_force_level],
+                    _value_key,
+                    conditions,
+                )
+                for _index, _simulation_id in enumerate(_paired["simulation_ids"]):
+                    _subject_rows.append(
+                        {
+                            "outcome": _outcome,
+                            "outcome_unit": _unit,
+                            "estimate": _estimate,
+                            "force_level_mvc": _force_level,
+                            "simulation_id": int(_simulation_id),
+                            "normal_value": float(_paired["first"][_index]),
+                            "dpn_value": float(_paired["second"][_index]),
+                            "dpn_minus_normal": float(_paired["effect"][_index]),
+                        }
+                    )
+
+            _adjusted = holm_adjust_pvalues([row["raw_p_value"] for row in _estimate_rows])
+            for _row, _adjusted_p_value in zip(_estimate_rows, _adjusted):
+                _row["holm_adjusted_p_value_across_mvc"] = float(_adjusted_p_value)
+            _summary_rows.extend(_estimate_rows)
+
+    _summary_frame = pd.DataFrame(_summary_rows)
+    _subject_frame = pd.DataFrame(_subject_rows)
+    _summary_frame.to_csv(
+        "diabetes/csv_results/force_level_robustness_summary_v2.csv",
+        index=False,
+    )
+    _subject_frame.to_csv(
+        "diabetes/csv_results/force_level_subject_effects_v2.csv",
+        index=False,
+    )
+
+    # Compare the subject-level condition effect estimated from 10 selected MUs
+    # with the known effect over every active MU at each contraction intensity.
+    _bias_rows = []
+    for _outcome_index, (_outcome, _value_key, _unit) in enumerate(_outcomes):
+        _outcome_bias_rows = []
+        for _force_level in (10, 20, 50):
+            _hdsemg_effects = paired_subject_effects(
+                _data_by_estimate["randomized_hdsemg"][_force_level],
+                _value_key,
+                conditions,
+            )
+            _truth_effects = paired_subject_effects(
+                _data_by_estimate["simulation_truth_all_active_motor_units"][_force_level],
+                _value_key,
+                conditions,
+            )
+            if not np.array_equal(
+                _hdsemg_effects["simulation_ids"],
+                _truth_effects["simulation_ids"],
+            ):
+                raise ValueError(
+                    "HD-sEMG and simulation-truth IDs must match for bias analysis."
+                )
+
+            _bias_summary = paired_bootstrap_summary(
+                _truth_effects["effect"],
+                _hdsemg_effects["effect"],
+                _seed_base + 1000 * _outcome_index + _force_level,
+                n_resamples,
+            )
+            _outcome_bias_rows.append(
+                {
+                    "outcome": _outcome,
+                    "outcome_unit": _unit,
+                    "force_level_mvc": _force_level,
+                    "n_pairs": int(_bias_summary["n_pairs"]),
+                    "truth_condition_effect": float(_truth_effects["effect"].mean()),
+                    "hdsemg_condition_effect": float(_hdsemg_effects["effect"].mean()),
+                    "hdsemg_minus_truth_effect_bias": float(_bias_summary["difference"]),
+                    "bias_ci_low": float(_bias_summary["difference_ci"][0]),
+                    "bias_ci_high": float(_bias_summary["difference_ci"][1]),
+                    "wilcoxon_statistic": float(_bias_summary["wilcoxon_statistic"]),
+                    "raw_p_value": float(_bias_summary["p_value"]),
+                }
+            )
+
+        _adjusted = holm_adjust_pvalues([row["raw_p_value"] for row in _outcome_bias_rows])
+        for _row, _adjusted_p_value in zip(_outcome_bias_rows, _adjusted):
+            _row["holm_adjusted_p_value_across_mvc"] = float(_adjusted_p_value)
+        _bias_rows.extend(_outcome_bias_rows)
+
+    _bias_frame = pd.DataFrame(_bias_rows)
+    _bias_frame.to_csv(
+        "diabetes/csv_results/force_level_estimator_bias_v2.csv",
+        index=False,
+    )
+
+    # A force-by-condition interaction is represented by a change in each
+    # subject's DPN-minus-Normal effect across MVC levels.
+    _dependence_rows = []
+    for _outcome_index, (_outcome, _value_key, _unit) in enumerate(_outcomes):
+        for _estimate_index, (_estimate, _force_data) in enumerate(
+            _data_by_estimate.items()
+        ):
+            _effects_by_force = {
+                _force_level: paired_subject_effects(
+                    _force_data[_force_level], _value_key, conditions
+                )
+                for _force_level in (10, 20, 50)
+            }
+            _dependence = summarize_force_level_dependence(
+                _effects_by_force,
+                paired_bootstrap_summary,
+                stats,
+                holm_adjust_pvalues,
+                seed=(_seed_base + 5000 + 1000 * _outcome_index + 100 * _estimate_index),
+                n_resamples=n_resamples,
+                reference_force=20,
+            )
+            for _contrast in _dependence["contrasts"]:
+                _dependence_rows.append(
+                    {
+                        "outcome": _outcome,
+                        "outcome_unit": _unit,
+                        "estimate": _estimate,
+                        "n_subjects": _dependence["n_subjects"],
+                        "force_levels_mvc": "10,20,50",
+                        "omnibus_test": "friedman",
+                        "friedman_statistic": _dependence["friedman_statistic"],
+                        "friedman_p_value": _dependence["friedman_p_value"],
+                        **_contrast,
+                    }
+                )
+
+    _dependence_frame = pd.DataFrame(_dependence_rows)
+    _dependence_frame.to_csv(
+        "diabetes/csv_results/force_level_dependence_contrasts_v2.csv",
+        index=False,
+    )
+
+    print("=" * 78)
+    print("=== FORCE-LEVEL ROBUSTNESS OF DPN - NORMAL EFFECTS ===")
+    print("=" * 78)
+    for _outcome, _, _unit in _outcomes:
+        print(f"\n{_outcome} ({_unit})")
+        for _row in _summary_frame[_summary_frame["outcome"] == _outcome].to_dict("records"):
+            print(
+                f"  {_row['force_level_mvc']:>2}% MVC, {_row['estimate']}: "
+                f"{_row['condition_effect']:+.4f} "
+                f"[{_row['effect_ci_low']:+.4f}, {_row['effect_ci_high']:+.4f}], "
+                f"p={_row['raw_p_value']:.4g}, "
+                f"Holm p={_row['holm_adjusted_p_value_across_mvc']:.4g}"
+            )
+
+        for _estimate in _data_by_estimate:
+            _rows = _dependence_frame[
+                (_dependence_frame["outcome"] == _outcome)
+                & (_dependence_frame["estimate"] == _estimate)
+            ]
+            _first = _rows.iloc[0]
+            print(
+                f"  MVC dependence, {_estimate}: Friedman "
+                f"Q={_first['friedman_statistic']:.3f}, "
+                f"p={_first['friedman_p_value']:.4g}"
+            )
+            for _, _contrast in _rows.iterrows():
+                print(
+                    f"    {_contrast['contrast_label']}: "
+                    f"{_contrast['effect_contrast']:+.4f} "
+                    f"[{_contrast['contrast_ci_low']:+.4f}, "
+                    f"{_contrast['contrast_ci_high']:+.4f}], "
+                    f"Holm p={_contrast['holm_adjusted_p_value']:.4g}"
+                )
+
+
+    def finalize_force_robustness_figure(
+        figure,
+        handles,
+        labels,
+        legend_fontsize,
+        title_fontsize,
+        title_fontweight,
+    ):
+        """Place the global legend below a non-overlapping figure title."""
+        title = figure.suptitle(
+            "Robustness of paired condition effects across contraction intensities",
+            fontsize=title_fontsize,
+            fontweight=title_fontweight,
+            y=0.99,
+        )
+        legend = figure.legend(
+            handles,
+            labels,
+            loc="upper center",
+            bbox_to_anchor=(0.5, 0.91),
+            ncol=2,
+            fontsize=legend_fontsize,
+            frameon=False,
+        )
+        figure.tight_layout(rect=(0, 0, 1, 0.80))
+        return title, legend
+
+
+    _figure, _axes = plt.subplots(1, 2, figsize=(14, 6))
+    _estimate_styles = {
+        "randomized_hdsemg": {
+            "label": "Randomized HD-sEMG estimate (10 MUs)",
+            "color": "red",
+            "marker": "o",
+            "offset": -0.7,
+        },
+        "simulation_truth_all_active_motor_units": {
+            "label": "Simulation truth (all active MUs)",
+            "color": "green",
+            "marker": "s",
+            "offset": 0.7,
+        },
+    }
+    _axis_labels = {
+        "firing_rate": "DPN - Normal firing rate (pps)",
+        "isi_cv": "DPN - Normal mean ISI-CoV",
+    }
+    _panel_titles = {
+        "firing_rate": "Firing rate",
+        "isi_cv": "ISI-CoV",
+    }
+    for _axis, (_outcome, _, _) in zip(_axes, _outcomes):
+        _axis.axhline(0, color="black", linewidth=1, zorder=0)
+        for _estimate, _style in _estimate_styles.items():
+            _plot_data = _summary_frame[
+                (_summary_frame["outcome"] == _outcome)
+                & (_summary_frame["estimate"] == _estimate)
+            ].sort_values("force_level_mvc")
+            _x = _plot_data["force_level_mvc"].to_numpy(dtype=float)
+            _effect = _plot_data["condition_effect"].to_numpy(dtype=float)
+            _lower = _plot_data["effect_ci_low"].to_numpy(dtype=float)
+            _upper = _plot_data["effect_ci_high"].to_numpy(dtype=float)
+            _axis.errorbar(
+                _x + _style["offset"],
+                _effect,
+                yerr=np.vstack((_effect - _lower, _upper - _effect)),
+                color=_style["color"],
+                marker=_style["marker"],
+                markersize=9,
+                linewidth=2,
+                capsize=5,
+                label=_style["label"],
+            )
+        _axis.axvline(20, color="grey", linestyle=":", linewidth=1.5)
+        _axis.set_xticks([10, 20, 50])
+        _axis.set_xlabel("Contraction intensity (% MVC)", fontsize=fs_label)
+        _axis.set_ylabel(_axis_labels[_outcome], fontsize=fs_label)
+        _axis.set_title(_panel_titles[_outcome], fontsize=fs_title, fontweight=fontweight)
+        _axis.tick_params(axis="both", labelsize=fs_ticklabels)
+
+    _handles, _labels = _axes[0].get_legend_handles_labels()
+    finalize_force_robustness_figure(
+        _figure,
+        _handles,
+        _labels,
+        legend_fontsize=fs_legend,
+        title_fontsize=fs_title,
+        title_fontweight=fontweight,
+    )
+    _figure_path = "diabetes/figures/force_level_robustness_v2.png"
+    _figure.savefig(_figure_path, dpi=300, bbox_inches="tight")
+    plt.show()
+    plt.close(_figure)
+
+    print(f"\nForce-level robustness figure saved to: {_figure_path}")
+    print("Statistical summaries saved to diabetes/csv_results/force_level_*_v2.csv")
     return
 
 
@@ -2072,6 +2591,10 @@ def _(
 def _(mo):
     mo.md(r"""
     ## Selection-threshold sensitivity analysis
+
+    At 20% MVC, the ISI-CoV eligibility threshold was varied while holding the
+    remaining selection criteria constant to assess the sensitivity of
+    HD-sEMG-like estimates to this analytical choice.
 
     The HD-sEMG analysis first applies a firing-rate window
     (`fmin < FR < fmax`) and an ISI-CoV ceiling, then randomly samples 10 eligible
@@ -2242,9 +2765,7 @@ def _(compute_cv, compute_fr, conditions, np, path, pd, stats, t_end, t_start):
                 np.mean(distribution["p_value"].to_numpy(dtype=float) < 0.05)
             ),
             "eligible_pool_minimum": int(distribution["min_eligible_pool"].min()),
-            "eligible_pool_median": float(
-                distribution["median_eligible_pool"].median()
-            ),
+            "eligible_pool_median": float(distribution["median_eligible_pool"].median()),
             "eligible_pool_maximum": int(distribution["max_eligible_pool"].max()),
         }
     return (
@@ -2282,6 +2803,7 @@ def _(
     os.makedirs("diabetes/figures", exist_ok=True)
     os.makedirs("diabetes/csv_results", exist_ok=True)
 
+
     def add_threshold_truth_reference(ax, truth_difference):
         """Add Figure 3's emphasized simulation-truth reference."""
         return ax.axhline(
@@ -2292,14 +2814,15 @@ def _(
             label=f"Simulation truth ({truth_difference:+.2f} pps)",
         )
 
+
     _stability_seeds = np.arange(
         selection_seeds["seed_stability_start"],
         selection_seeds["seed_stability_start"] + n_selection_seeds,
     )
     _force_specs = (
         (20, trials, batch_name, selection_seeds["hdsemg"]),
-        (10, np.arange(10), "mvc10", selection_seeds["mvc10_hdsemg"]),
-        (50, np.arange(10), "mvc50", selection_seeds["mvc50_hdsemg"]),
+        (10, np.arange(50), "mvc10", selection_seeds["mvc10_hdsemg"]),
+        (50, np.arange(50), "mvc50", selection_seeds["mvc50_hdsemg"]),
     )
     _force_output_paths = {
         20: "diabetes/csv_results/selection_seed_stability_20mvc_v2.csv",
@@ -2455,15 +2978,13 @@ def _(
     _fig, _ax = plt.subplots(figsize=(10, 6.5))
 
     _x = _threshold_summary_frame["isicv"].to_numpy(dtype=float)
-    _median = _threshold_summary_frame[
-        "median_difference_across_seeds"
-    ].to_numpy(dtype=float)
-    _lower = _threshold_summary_frame[
-        "selection_range_2_5_percentile"
-    ].to_numpy(dtype=float)
-    _upper = _threshold_summary_frame[
-        "selection_range_97_5_percentile"
-    ].to_numpy(dtype=float)
+    _median = _threshold_summary_frame["median_difference_across_seeds"].to_numpy(
+        dtype=float
+    )
+    _lower = _threshold_summary_frame["selection_range_2_5_percentile"].to_numpy(dtype=float)
+    _upper = _threshold_summary_frame["selection_range_97_5_percentile"].to_numpy(
+        dtype=float
+    )
 
     _ax.axhline(0, color="black", linewidth=1)
     add_threshold_truth_reference(_ax, _truth["difference"])
@@ -2519,10 +3040,7 @@ def _(
     plt.close(_fig)
 
     print(f"\nFigure saved to: {_figure_path}")
-    print(
-        "Sweep saved to: "
-        "diabetes/csv_results/selection_threshold_sensitivity_v2.csv"
-    )
+    print("Sweep saved to: diabetes/csv_results/selection_threshold_sensitivity_v2.csv")
     return
 
 

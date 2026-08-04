@@ -10,6 +10,7 @@ from matplotlib import colors as mcolors
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy import stats
 
 
 NOTEBOOK = Path(__file__).parents[2] / "diabetes" / "analysis_v2.py"
@@ -26,9 +27,26 @@ def load_notebook_function(name):
         raise AssertionError(f"missing notebook function: {name}")
     module = ast.Module(body=[definitions[name]], type_ignores=[])
     ast.fix_missing_locations(module)
-    namespace = {}
+    namespace = {"np": np}
     exec(compile(module, str(NOTEBOOK), "exec"), namespace)
     return namespace[name]
+
+
+def load_notebook_functions(*names):
+    tree = ast.parse(NOTEBOOK.read_text())
+    definitions = {
+        node.name: node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.FunctionDef) and node.name in names
+    }
+    missing = set(names) - set(definitions)
+    if missing:
+        raise AssertionError(f"missing notebook functions: {sorted(missing)}")
+    module = ast.Module(body=[definitions[name] for name in names], type_ignores=[])
+    ast.fix_missing_locations(module)
+    namespace = {"np": np}
+    exec(compile(module, str(NOTEBOOK), "exec"), namespace)
+    return tuple(namespace[name] for name in names)
 
 
 class FigureDisplayTest(unittest.TestCase):
@@ -41,9 +59,9 @@ class FigureDisplayTest(unittest.TestCase):
 
         significance_y = configure_primary_fr_axis(axis, tick_fontsize=12)
 
-        self.assertEqual(tuple(axis.get_ylim()), (8.0, 18.0))
-        self.assertEqual(axis.get_yticks().tolist(), [8, 10, 12, 14, 16, 18])
-        self.assertEqual(significance_y, 17)
+        self.assertEqual(tuple(axis.get_ylim()), (8.0, 16.0))
+        self.assertEqual(axis.get_yticks().tolist(), [8, 10, 12, 14, 16])
+        self.assertEqual(significance_y, 15)
         self.assertGreater(significance_y - 0.5, axis.get_ylim()[0])
         self.assertLess(significance_y + 0.1, axis.get_ylim()[1])
 
@@ -132,6 +150,146 @@ class FigureDisplayTest(unittest.TestCase):
         self.assertGreater(
             truth_line.get_linewidth(),
             randomized_line.get_linewidth(),
+        )
+
+
+class ForceLevelRobustnessTest(unittest.TestCase):
+    def test_force_robustness_title_and_legend_do_not_overlap(self):
+        finalize_force_robustness_figure = load_notebook_function(
+            "finalize_force_robustness_figure"
+        )
+        figure, axes = plt.subplots(1, 2, figsize=(14, 6))
+        self.addCleanup(plt.close, figure)
+        (first_handle,) = axes[0].plot([10, 20], [0, 1], label="Estimate")
+        (second_handle,) = axes[0].plot([10, 20], [1, 0], label="Truth")
+
+        title, legend = finalize_force_robustness_figure(
+            figure,
+            [first_handle, second_handle],
+            ["Estimate", "Truth"],
+            legend_fontsize=16,
+            title_fontsize=20,
+            title_fontweight="normal",
+        )
+        figure.canvas.draw()
+        renderer = figure.canvas.get_renderer()
+
+        self.assertGreater(
+            title.get_window_extent(renderer).y0,
+            legend.get_window_extent(renderer).y1,
+        )
+
+    def test_paired_subject_effects_preserve_ids_and_use_dpn_minus_normal(self):
+        paired_subject_effects = load_notebook_function("paired_subject_effects")
+        data = {
+            "mn_rate_trial_mean": {
+                "normal": np.array([10.0, 11.0, 12.0]),
+                "DPN": np.array([11.0, 10.0, 14.0]),
+            },
+            "simulation_ids": {
+                "normal": np.array([0, 1, 2]),
+                "DPN": np.array([0, 1, 2]),
+            },
+        }
+
+        result = paired_subject_effects(
+            data, "mn_rate_trial_mean", ("normal", "DPN")
+        )
+
+        np.testing.assert_array_equal(result["simulation_ids"], [0, 1, 2])
+        np.testing.assert_allclose(result["effect"], [1.0, -1.0, 2.0])
+
+    def test_paired_subject_effects_reject_misaligned_condition_ids(self):
+        paired_subject_effects = load_notebook_function("paired_subject_effects")
+        data = {
+            "mn_rate_trial_mean": {
+                "normal": np.array([10.0, 11.0]),
+                "DPN": np.array([11.0, 12.0]),
+            },
+            "simulation_ids": {
+                "normal": np.array([0, 1]),
+                "DPN": np.array([1, 0]),
+            },
+        }
+
+        with self.assertRaisesRegex(ValueError, "simulation IDs"):
+            paired_subject_effects(
+                data, "mn_rate_trial_mean", ("normal", "DPN")
+            )
+
+    def test_holm_adjustment_is_monotone_in_sorted_p_values(self):
+        holm_adjust_pvalues = load_notebook_function("holm_adjust_pvalues")
+
+        adjusted = holm_adjust_pvalues([0.01, 0.04, 0.03])
+
+        np.testing.assert_allclose(adjusted, [0.03, 0.06, 0.06])
+
+    def test_force_dependence_uses_primary_reference_and_all_pairwise_contrasts(self):
+        holm_adjust_pvalues, summarize_force_level_dependence = (
+            load_notebook_functions(
+                "holm_adjust_pvalues", "summarize_force_level_dependence"
+            )
+        )
+
+        def simple_paired_summary(first, second, seed, n_resamples):
+            del seed, n_resamples
+            difference = np.asarray(second) - np.asarray(first)
+            wilcoxon = stats.wilcoxon(first, second, method="auto")
+            return {
+                "n_pairs": len(difference),
+                "difference": float(difference.mean()),
+                "difference_ci": (
+                    float(difference.min()),
+                    float(difference.max()),
+                ),
+                "wilcoxon_statistic": float(wilcoxon.statistic),
+                "p_value": float(wilcoxon.pvalue),
+            }
+
+        simulation_ids = np.arange(4)
+        effects = {
+            10: {
+                "simulation_ids": simulation_ids,
+                "effect": np.array([-1.0, 0.0, 1.0, 2.0]),
+            },
+            20: {
+                "simulation_ids": simulation_ids,
+                "effect": np.array([0.0, 1.0, 2.0, 3.0]),
+            },
+            50: {
+                "simulation_ids": simulation_ids,
+                "effect": np.array([2.0, 3.0, 4.0, 5.0]),
+            },
+        }
+
+        result = summarize_force_level_dependence(
+            effects,
+            simple_paired_summary,
+            stats,
+            holm_adjust_pvalues,
+            seed=123,
+            n_resamples=100,
+            reference_force=20,
+        )
+
+        self.assertEqual(result["n_subjects"], 4)
+        self.assertEqual(result["force_levels_mvc"], [10, 20, 50])
+        self.assertEqual(
+            [
+                (row["first_force_mvc"], row["second_force_mvc"])
+                for row in result["contrasts"]
+            ],
+            [(20, 10), (20, 50), (10, 50)],
+        )
+        np.testing.assert_allclose(
+            [row["effect_contrast"] for row in result["contrasts"]],
+            [-1.0, 2.0, 3.0],
+        )
+        self.assertTrue(
+            all(
+                row["holm_adjusted_p_value"] >= row["raw_p_value"]
+                for row in result["contrasts"]
+            )
         )
 
 
