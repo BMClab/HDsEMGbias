@@ -8,7 +8,7 @@ dependencies = [
     "impi-rt>=2021.15.0 ; sys_platform == 'win32'",
     "jupyter>=1.1.1",
     "libneuroml>=0.6.5",
-    "marimo>=0.17.8",
+    "marimo>=0.23.16",
     "matplotlib>=3.10.1",
     "mpi4py>=4.1.0",
     "neuron>=8.2.6 ; sys_platform == 'linux'",
@@ -31,3 +31,8 @@ enable_ruff = true           # Linting with ruff (enabled by default, if install
 # Diagnostics configuration
 [tool.marimo.diagnostics]
 enabled = true               # Show diagnostics in the editor
+
+[dependency-groups]
+dev = [
+    "playwright>=1.62.0",
+]

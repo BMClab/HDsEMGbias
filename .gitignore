@@ -124,6 +124,8 @@ celerybeat.pid
 *.sage.py
 
 diabetes/results/
+# marimo's analysis-v2 session snapshot embeds derived executed outputs.
+diabetes/__marimo__/session/analysis_v2.py.json
 
 # Environments
 .env
