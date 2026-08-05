@@ -2,7 +2,7 @@
 
 Date: 2026-08-04
 
-Status: Revised after second review; pending approval
+Status: Revised after implementation-plan review; pending approval
 
 ## Context
 
@@ -27,17 +27,25 @@ Add one hidden-code marimo cell near the beginning of the notebook, under the ex
 
 The values will be obtained at execution time using Python's standard library and `importlib.metadata`; the cell will not import the analysis libraries a second time. This avoids duplicate marimo variable definitions. The notebook header will also be refreshed from marimo 0.17.8 to the installed 0.23.16 format when the file is saved.
 
-The cell will define a named `collect_provenance()` function and then render its result. Keeping the collection logic named and independent of marimo presentation makes success and failure behavior directly testable through the repository's existing AST-based notebook test pattern. Because that harness extracts and executes only the selected `ast.FunctionDef`, every standard-library import needed by `collect_provenance()` will be inside the function body rather than at cell scope. The cell will not inspect, summarize, embed, or upload any file under `diabetes/results/`.
+The cell will define named `collect_provenance()` and `format_provenance_markdown()` functions, then render the formatted result. The formatter will build Markdown without an indented multiline template so interpolated rows cannot disable dedenting and turn the table into a code block. A focused test will pass the formatted string through `mo.md()` and require a real HTML `<table>`.
+
+Keeping collection and formatting independent of marimo presentation makes both directly testable through the repository's existing AST-based notebook test pattern. Because that harness extracts and executes only the selected `ast.FunctionDef`, every standard-library import needed by `collect_provenance()` will be inside the function body rather than at cell scope. No other cell consumes either function, so the generated marimo cell will use a bare return. The cell will not inspect, summarize, embed, or upload any file under `diabetes/results/`.
 
 ## Data flow and failure handling
 
-The cell reads installed package metadata, the notebook source bytes, and the local Git revision, then renders a Markdown table through marimo. It records both `git rev-parse HEAD` and whether `git status --porcelain` reports changes, so a commit is never presented as a complete description of a dirty run. A missing package version or unavailable Git command will be represented as `unavailable`; provenance collection must not abort the statistical analysis. Failure to read the notebook source is handled the same way.
+The cell passes its `__file__` path to the collector. The collector resolves that source path first, derives the repository root by running `git rev-parse --show-toplevel` from the source file's directory, records `git rev-parse HEAD`, and uses `git status --porcelain` for the clean/dirty state. This remains correct when the caller's current directory is not the repository root.
+
+A missing package version, Git command, or source file will be represented as `unavailable`; provenance collection must not abort the statistical analysis. The final PDF validation must nevertheless reject any `unavailable` value and require `Git state` to be exactly `clean`.
 
 ## PDF prerequisites and export policy
 
 The machine does not have pandoc or XeLaTeX, so PDF generation intentionally uses marimo's WebPDF path. Create a `[dependency-groups]` development group containing Playwright so its Python version is locked, and install its matching Chromium runtime once with `uv run playwright install chromium`. `nbformat` and `nbconvert` are already locked through the existing project dependencies and need no change. Playwright and the browser are prerequisites, not analysis inputs; neither receives data from `diabetes/results/`.
 
 The export will be run from the repository root with outputs enabled, WebPDF selected explicitly, code inputs omitted, and marimo output rasterization disabled. `--no-rasterize-outputs` preserves the provenance table as searchable PDF text; static Matplotlib image outputs remain available to WebPDF.
+
+Each complete export is expected to take 4–8 minutes. Agentic execution will poll at least once per minute and wrap the command in a 15-minute hard timeout; a timeout is a failed export requiring partial-output inspection before any retry.
+
+Marimo export also writes `diabetes/__marimo__/session/analysis_v2.py.json`, a large derived snapshot that can embed executed outputs. This file is not part of the curated publication artifact and will be ignored explicitly in `.gitignore`; the existing tracked legacy session snapshot remains untouched. Validation will require the new snapshot to be ignored and untracked rather than treating it as an unexpected status entry.
 
 ## Environment migration and generated outputs
 
@@ -56,19 +64,19 @@ Both PDFs are first written outside the repository. Only the validated final PDF
 ## Validation
 
 1. Resolve the marimo lockfile drift and create the Playwright development group, then sync the environment and install the locked browser runtime with `uv run playwright install chromium`.
-2. Add `collect_provenance()`, its presentation cell, the README instructions, and unit tests covering normal collection, the source digest, the clean/dirty indicator, and graceful degradation when package, Git, or source metadata is unavailable.
+2. Add `collect_provenance()`, `format_provenance_markdown()`, their presentation cell, the session-snapshot ignore rule, the README instructions, and unit tests covering normal collection, the source digest, the clean/dirty indicator, graceful degradation, and actual `<table>` rendering through `mo.md()`.
 3. Run the focused provenance tests, the existing `analysis_v2` tests, and marimo's strict notebook check.
 4. Commit the dependency, notebook, test, and README changes without refreshing generated outputs.
-5. Confirm the tracked worktree is clean and record the pre-migration generated-output manifest.
-6. From the repository root, perform the baseline refresh with `uv run marimo export pdf --include-outputs --webpdf --no-include-inputs --no-rasterize-outputs diabetes/analysis_v2.py -o /tmp/analysis_v2_baseline_refresh.pdf -f`.
+5. Confirm the tracked worktree is clean and preserve the committed pre-migration generated outputs for semantic comparison.
+6. From the repository root, perform the baseline refresh with `timeout --signal=TERM 15m uv run marimo export pdf --include-outputs --webpdf --no-include-inputs --no-rasterize-outputs diabetes/analysis_v2.py -o /tmp/analysis_v2_baseline_refresh.pdf -f`.
 7. Review CSVs semantically and PNGs by dimensions, pixels, and visual appearance; reconcile any material result change with the manuscript before proceeding.
 8. Commit the accepted generated-output refresh, confirm the worktree is clean, and record its SHA-256 manifest as the new baseline.
-9. From the repository root, perform the final export with `uv run marimo export pdf --include-outputs --webpdf --no-include-inputs --no-rasterize-outputs diabetes/analysis_v2.py -o /tmp/analysis_v2_last_run.pdf -f`.
+9. From the repository root, perform the final export with `timeout --signal=TERM 15m uv run marimo export pdf --include-outputs --webpdf --no-include-inputs --no-rasterize-outputs diabetes/analysis_v2.py -o /tmp/analysis_v2_last_run.pdf -f`.
 10. Confirm the final export finishes successfully against the local ignored results.
 11. Require the second run's tracked CSVs and PNGs to match the new baseline byte-for-byte, and stop on any unexpected tracked or untracked output.
-12. Extract and inspect PDF text to verify the timestamp, versions, commit, clean indicator, and source digest are present and searchable.
+12. Extract and inspect PDF text to verify every timestamp/version/commit/digest value is present and searchable, no value is `unavailable`, and Git state is exactly `clean`.
 13. Render and visually inspect all PDF pages, including the analysis figures.
-14. Confirm `diabetes/results/` remains ignored and no raw result files enter Git status, then copy the validated PDF to `diabetes/analysis_v2_last_run.pdf`.
+14. Confirm `diabetes/results/` and the analysis-v2 marimo session snapshot remain ignored and untracked, then copy the validated PDF to `diabetes/analysis_v2_last_run.pdf`.
 
 ## Repository presentation
 
