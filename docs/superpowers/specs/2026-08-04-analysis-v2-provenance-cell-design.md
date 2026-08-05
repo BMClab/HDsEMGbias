@@ -2,7 +2,7 @@
 
 Date: 2026-08-04
 
-Status: Revised after review; pending approval
+Status: Revised after second review; pending approval
 
 ## Context
 
@@ -27,7 +27,7 @@ Add one hidden-code marimo cell near the beginning of the notebook, under the ex
 
 The values will be obtained at execution time using Python's standard library and `importlib.metadata`; the cell will not import the analysis libraries a second time. This avoids duplicate marimo variable definitions. The notebook header will also be refreshed from marimo 0.17.8 to the installed 0.23.16 format when the file is saved.
 
-The cell will define a named `collect_provenance()` function and then render its result. Keeping the collection logic named and independent of marimo presentation makes success and failure behavior directly testable through the repository's existing AST-based notebook test pattern. The cell will not inspect, summarize, embed, or upload any file under `diabetes/results/`.
+The cell will define a named `collect_provenance()` function and then render its result. Keeping the collection logic named and independent of marimo presentation makes success and failure behavior directly testable through the repository's existing AST-based notebook test pattern. Because that harness extracts and executes only the selected `ast.FunctionDef`, every standard-library import needed by `collect_provenance()` will be inside the function body rather than at cell scope. The cell will not inspect, summarize, embed, or upload any file under `diabetes/results/`.
 
 ## Data flow and failure handling
 
@@ -35,24 +35,40 @@ The cell reads installed package metadata, the notebook source bytes, and the lo
 
 ## PDF prerequisites and export policy
 
-The machine does not have pandoc or XeLaTeX, so PDF generation intentionally uses marimo's WebPDF path. Add Playwright as a project development dependency so its Python version is locked, and install its matching Chromium runtime once with `playwright install chromium`. Playwright and the browser are prerequisites, not analysis inputs; neither receives data from `diabetes/results/`.
+The machine does not have pandoc or XeLaTeX, so PDF generation intentionally uses marimo's WebPDF path. Create a `[dependency-groups]` development group containing Playwright so its Python version is locked, and install its matching Chromium runtime once with `uv run playwright install chromium`. `nbformat` and `nbconvert` are already locked through the existing project dependencies and need no change. Playwright and the browser are prerequisites, not analysis inputs; neither receives data from `diabetes/results/`.
 
-The export will be run from the repository root with outputs enabled, code inputs omitted, and marimo output rasterization disabled. `--no-rasterize-outputs` preserves the provenance table as searchable PDF text; static Matplotlib image outputs remain available to WebPDF.
+The export will be run from the repository root with outputs enabled, WebPDF selected explicitly, code inputs omitted, and marimo output rasterization disabled. `--no-rasterize-outputs` preserves the provenance table as searchable PDF text; static Matplotlib image outputs remain available to WebPDF.
 
-The notebook writes 36 tracked files under `diabetes/figures/` and `diabetes/csv_results/` during execution. Their expected outcome is byte-identical regeneration. Before export, record their SHA-256 manifest and start from a clean tracked state. After export, compare the manifest and Git status; any changed tracked output or unexpected untracked output is a red flag that stops publication for review. The PDF is first written outside the repository and copied to its stable repository path only after all checks pass.
+## Environment migration and generated outputs
+
+The notebook writes 36 tracked files under `diabetes/figures/` and `diabetes/csv_results/` during execution. Those files were committed with the notebook at `8119d00`, but the current environment has moved from Matplotlib 3.10.3 to 3.11.1 and to pandas 3.0.5. A byte-identical first regeneration is therefore impossible for PNGs and cannot be assumed for CSV serialization.
+
+Use a two-run migration:
+
+1. Settle the marimo lockfile upgrade, add the Playwright development dependency, add the provenance implementation and tests, update the README, and commit these non-generated changes.
+2. From that clean state, perform a baseline export that intentionally refreshes generated CSVs and PNGs; discard its PDF.
+3. Review the refresh semantically. Compare CSV schemas, nonnumeric fields, and numeric values rather than raw serialization alone. Compare PNG dimensions and pixel content independently of metadata, then visually inspect any rendering differences. If a reported estimate changes materially, stop and reconcile the notebook, manuscript, and reviewer response before accepting the refresh.
+4. Commit the accepted refreshed outputs as the new 0.23.16 baseline.
+5. From the resulting clean state, perform the final export. On this second run, require byte-identical generated outputs; any difference is then a determinism failure.
+
+Both PDFs are first written outside the repository. Only the validated final PDF is copied to its stable repository path.
 
 ## Validation
 
-1. Add unit tests for `collect_provenance()` covering normal collection, the source digest, the clean/dirty indicator, and graceful degradation when package, Git, or source metadata is unavailable.
-2. Run the focused provenance tests and the existing `analysis_v2` tests.
-3. Run marimo's strict notebook check.
-4. Record hashes for all tracked generated CSV and PNG outputs, and confirm the tracked worktree is clean before execution.
-5. From the repository root, export with `uv run marimo export pdf --no-include-inputs --no-rasterize-outputs diabetes/analysis_v2.py -o /tmp/analysis_v2_last_run.pdf -f`.
-6. Confirm the export finishes successfully against the local ignored results.
-7. Compare generated-output hashes and full Git status with the pre-export state; stop if any tracked output differs or any unexpected file appears.
-8. Extract and inspect PDF text to verify the timestamp, versions, commit, dirty indicator, and source digest are present and searchable.
-9. Render and visually inspect all PDF pages, including the analysis figures.
-10. Confirm `diabetes/results/` remains ignored and no raw result files enter Git status, then copy the validated PDF to `diabetes/analysis_v2_last_run.pdf`.
+1. Resolve the marimo lockfile drift and create the Playwright development group, then sync the environment and install the locked browser runtime with `uv run playwright install chromium`.
+2. Add `collect_provenance()`, its presentation cell, the README instructions, and unit tests covering normal collection, the source digest, the clean/dirty indicator, and graceful degradation when package, Git, or source metadata is unavailable.
+3. Run the focused provenance tests, the existing `analysis_v2` tests, and marimo's strict notebook check.
+4. Commit the dependency, notebook, test, and README changes without refreshing generated outputs.
+5. Confirm the tracked worktree is clean and record the pre-migration generated-output manifest.
+6. From the repository root, perform the baseline refresh with `uv run marimo export pdf --include-outputs --webpdf --no-include-inputs --no-rasterize-outputs diabetes/analysis_v2.py -o /tmp/analysis_v2_baseline_refresh.pdf -f`.
+7. Review CSVs semantically and PNGs by dimensions, pixels, and visual appearance; reconcile any material result change with the manuscript before proceeding.
+8. Commit the accepted generated-output refresh, confirm the worktree is clean, and record its SHA-256 manifest as the new baseline.
+9. From the repository root, perform the final export with `uv run marimo export pdf --include-outputs --webpdf --no-include-inputs --no-rasterize-outputs diabetes/analysis_v2.py -o /tmp/analysis_v2_last_run.pdf -f`.
+10. Confirm the final export finishes successfully against the local ignored results.
+11. Require the second run's tracked CSVs and PNGs to match the new baseline byte-for-byte, and stop on any unexpected tracked or untracked output.
+12. Extract and inspect PDF text to verify the timestamp, versions, commit, clean indicator, and source digest are present and searchable.
+13. Render and visually inspect all PDF pages, including the analysis figures.
+14. Confirm `diabetes/results/` remains ignored and no raw result files enter Git status, then copy the validated PDF to `diabetes/analysis_v2_last_run.pdf`.
 
 ## Repository presentation
 
