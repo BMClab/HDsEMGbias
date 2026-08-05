@@ -34,6 +34,7 @@ def _():
     from matplotlib.ticker import MaxNLocator
     from scipy import stats
     from scipy.signal import butter, filtfilt
+
     return MaxNLocator, butter, filtfilt, mo, np, os, pd, plt, stats, sys
 
 
@@ -59,6 +60,7 @@ def _(mo):
             package_version = metadata.version
 
         if run_git is None:
+
             def run_git(repo_root, *arguments):
                 completed = subprocess.run(
                     ["git", *arguments],
@@ -118,12 +120,7 @@ def _(mo):
         rows = "\n".join(
             f"| {label} | `{value}` |" for label, value in provenance.items()
         )
-        return (
-            "### Execution provenance\n\n"
-            "| Item | Value |\n"
-            "|---|---|\n"
-            f"{rows}"
-        )
+        return f"### Execution provenance\n\n| Item | Value |\n|---|---|\n{rows}"
 
     _provenance = collect_provenance(__file__)
     mo.md(format_provenance_markdown(_provenance))
@@ -233,10 +230,14 @@ def _(
     plt,
     stats,
 ):
-    def select_mns_randomly(data, t_start, t_end, size=mn_number, column_spikes=1, rng=None):
+    def select_mns_randomly(
+        data, t_start, t_end, size=mn_number, column_spikes=1, rng=None
+    ):
         """Select a reproducible sample of unique active motor units."""
         if rng is None:
-            raise ValueError("A seeded NumPy Generator is required for random selection.")
+            raise ValueError(
+                "A seeded NumPy Generator is required for random selection."
+            )
 
         steady_data = data[
             (data[:, column_spikes] >= t_start) & (data[:, column_spikes] <= t_end)
@@ -251,12 +252,10 @@ def _(
 
         return selected_neurons
 
-
     def select_all_mns(data, t_start, t_end, column_spikes=1):
         """Select all motor units (no filtering criteria)."""
         unique_neurons = np.unique(data[:, 0])
         return unique_neurons.astype(int)
-
 
     def select_mns_hdemg(
         data,
@@ -269,7 +268,9 @@ def _(
     ):
         """Select a seeded random sample from HD-sEMG-eligible motor units."""
         if rng is None:
-            raise ValueError("A seeded NumPy Generator is required for random selection.")
+            raise ValueError(
+                "A seeded NumPy Generator is required for random selection."
+            )
 
         steady_data = data[
             (data[:, column_spikes] >= t_start) & (data[:, column_spikes] <= t_end)
@@ -278,10 +279,14 @@ def _(
         ISI_CV, _ = compute_cv(
             unique_neurons, steady_data, t_start, t_end, column_spikes=column_spikes
         )
-        fr = compute_fr(unique_neurons, data, t_start, t_end, column_spikes=column_spikes)
+        fr = compute_fr(
+            unique_neurons, data, t_start, t_end, column_spikes=column_spikes
+        )
         # Apply the HD-sEMG-like eligibility criteria.
         selection_criteria = np.where(
-            (fr > criteria["fmin"]) & (fr < criteria["fmax"]) & (ISI_CV <= criteria["isicv"])
+            (fr > criteria["fmin"])
+            & (fr < criteria["fmax"])
+            & (ISI_CV <= criteria["isicv"])
         )[0]
         eligible_neurons = unique_neurons[selection_criteria].astype(int)
         if eligible_neurons.size < mn_number:
@@ -290,7 +295,6 @@ def _(
                 f"{eligible_neurons.size} eligible units."
             )
         return rng.choice(eligible_neurons, size=mn_number, replace=False)
-
 
     def compute_fr(selected_neurons, data, t_start, t_end, column_spikes=1):
         """Compute steady-state firing rates for the selected motor units."""
@@ -307,7 +311,6 @@ def _(
             i = i + 1
         return firing_rates
 
-
     def compute_mn_cv(spike_times, t_start):
         """Compute the interspike-interval mean and coefficient of variation."""
         ISI = np.diff(spike_times[spike_times > t_start])
@@ -319,7 +322,6 @@ def _(
             ISI_mean = 0
             ISI_CV = 1
         return ISI_CV, ISI_mean
-
 
     def compute_cv(selected_neurons, data, t_start, t_end, column_spikes=1):
         """Compute ISI statistics for each selected motor unit."""
@@ -336,7 +338,6 @@ def _(
             i = i + 1
 
         return ISI_CV, ISI_mean
-
 
     def plot_mn_fr(
         fr_data,
@@ -403,7 +404,6 @@ def _(
         )
         df_mean.to_csv(f"diabetes/mn_firing_rate_summary_{mode}_v2.csv", index=False)
 
-
     def calculate_fr_data(
         trials,
         mode,
@@ -422,7 +422,9 @@ def _(
 
         if mode == "hdsemg" and selection_seed is None:
             raise ValueError(f"selection_seed is required for mode '{mode}'.")
-        selection_rng = np.random.default_rng(selection_seed) if mode == "hdsemg" else None
+        selection_rng = (
+            np.random.default_rng(selection_seed) if mode == "hdsemg" else None
+        )
 
         mn_rate_mean_mean = {}
         mn_rate_mean_CV = {}
@@ -478,7 +480,9 @@ def _(
                 mns_rate_mean = compute_fr(
                     selected_neurons, data, t_start_param, t_end_param
                 )
-                ISI_CV, _ = compute_cv(selected_neurons, data, t_start_param, t_end_param)
+                ISI_CV, _ = compute_cv(
+                    selected_neurons, data, t_start_param, t_end_param
+                )
                 ISI_CV = ISI_CV[mns_rate_mean >= 0.01].reshape(-1, 1)
                 mns_rate_mean = mns_rate_mean[mns_rate_mean >= 0.01].reshape(-1, 1)
                 mn_rate_trial_mean[condition].append(
@@ -492,7 +496,9 @@ def _(
                 mn_rate_mean_mean[condition] = np.vstack(
                     (mn_rate_mean_mean[condition], mns_rate_mean)
                 )
-                mn_rate_mean_CV[condition] = np.vstack((mn_rate_mean_CV[condition], ISI_CV))
+                mn_rate_mean_CV[condition] = np.vstack(
+                    (mn_rate_mean_CV[condition], ISI_CV)
+                )
 
         return {
             "mn_rate_mean_mean": mn_rate_mean_mean,
@@ -518,7 +524,6 @@ def _(
             "CV_mean": CV_mean / n if n > 0 else 0,
         }
 
-
     def configure_primary_fr_axis(ax, tick_fontsize):
         """Set Figure 2's vertical display and return its bracket height."""
         ticks = [8, 10, 12, 14, 16]
@@ -526,7 +531,6 @@ def _(
         ax.set_yticks(ticks)
         ax.set_yticklabels(ticks, fontsize=tick_fontsize)
         return 15
-
 
     def add_primary_fr_summaries(
         ax,
@@ -560,7 +564,6 @@ def _(
             zorder=5,
         )
         return estimate_handle, truth_handle
-
 
     def add_primary_fr_significance(ax, p_value, significance_y):
         """Add the red significance annotation for the HD-sEMG comparison."""
@@ -600,7 +603,6 @@ def _(
         )
         return bracket_lines, significance_text
 
-
     def plot_mn_fr_combined_data(data_hdemg, data_truth, conditions, pd):
         """Plot randomized HD-sEMG estimates against the all-MU simulation truth."""
         os.makedirs("diabetes/figures", exist_ok=True)
@@ -611,7 +613,9 @@ def _(
                 data_hdemg["simulation_ids"][condition],
                 data_truth["simulation_ids"][condition],
             ):
-                raise ValueError(f"HD-sEMG and simulation-truth IDs differ for {condition}.")
+                raise ValueError(
+                    f"HD-sEMG and simulation-truth IDs differ for {condition}."
+                )
 
         bootstrap_hdemg = bootstrap_mode(
             data_hdemg,
@@ -656,7 +660,9 @@ def _(
         normal_jitter = 1 + 0.1 * jitter_rng.normal(
             size=simulation_rates[conditions[0]].size
         )
-        dpn_jitter = 2 + 0.1 * jitter_rng.normal(size=simulation_rates[conditions[1]].size)
+        dpn_jitter = 2 + 0.1 * jitter_rng.normal(
+            size=simulation_rates[conditions[1]].size
+        )
         truth_line_width = float(np.ptp(normal_jitter))
 
         fig, ax = plt.subplots(figsize=(7, 6))
@@ -778,7 +784,6 @@ def _(
             "diabetes/csv_results/mn_firing_rate_p_values_combined_v2.csv"
         )
 
-
     def print_statistics(
         fr_data,
         stats_module,
@@ -786,7 +791,9 @@ def _(
         seed=20260728,
     ):
         """Print simulation-level firing-rate and ISI-CoV statistics."""
-        result = bootstrap_mode(fr_data, mode, seed, n_resamples, stats_module=stats_module)
+        result = bootstrap_mode(
+            fr_data, mode, seed, n_resamples, stats_module=stats_module
+        )
         isi_cv_result = bootstrap_isi_cv(
             fr_data, mode, seed, n_resamples, stats_module=stats_module
         )
@@ -837,7 +844,6 @@ def _(
         result["isi_cv"] = isi_cv_result
         return result
 
-
     def firing_rate(
         spiketrains,
         delta_t=0.00005,
@@ -864,7 +870,6 @@ def _(
         fr[fr < 0] = 0
         return fr, t
 
-
     def bootstrap_mode(
         data, mode, seed=20260728, n_resamples=n_resamples, stats_module=stats
     ):
@@ -874,7 +879,9 @@ def _(
         dpn = np.asarray(trial_means["DPN"], dtype=float).ravel()
 
         if normal.size != dpn.size:
-            raise ValueError("Normal and DPN must contain the same number of simulations.")
+            raise ValueError(
+                "Normal and DPN must contain the same number of simulations."
+            )
         simulation_ids = data.get("simulation_ids")
         if simulation_ids is not None:
             normal_ids = np.asarray(simulation_ids["normal"], dtype=int).ravel()
@@ -909,7 +916,9 @@ def _(
         normal_bootstrap = stats_module.bootstrap(
             (normal,), mean_statistic, **bootstrap_options
         )
-        dpn_bootstrap = stats_module.bootstrap((dpn,), mean_statistic, **bootstrap_options)
+        dpn_bootstrap = stats_module.bootstrap(
+            (dpn,), mean_statistic, **bootstrap_options
+        )
         difference_bootstrap = stats_module.bootstrap(
             (normal, dpn),
             mean_difference,
@@ -954,7 +963,6 @@ def _(
         }
         return result
 
-
     def bootstrap_isi_cv(
         data, mode, seed=20260728, n_resamples=n_resamples, stats_module=stats
     ):
@@ -992,6 +1000,7 @@ def _(
             "wilcoxon_statistic": result["wilcoxon_statistic"],
             "p_value": result["p_value"],
         }
+
     return (
         calculate_fr_data,
         compute_cv,
@@ -1160,7 +1169,6 @@ def _(
             float(result.confidence_interval.high),
         )
 
-
     def paired_bootstrap_summary(first, second, seed, n_resamples):
         """Summarize paired samples with bootstrap intervals and Wilcoxon p-values."""
         first = np.asarray(first, dtype=float)
@@ -1230,7 +1238,6 @@ def _(
             "p_value": p_value,
         }
 
-
     def compute_force_statistics(
         trials_param,
         batch_name_param,
@@ -1289,7 +1296,6 @@ def _(
                 "MVC": MVC,
             }
         return results
-
 
     def print_force_stats(
         results,
@@ -1385,7 +1391,9 @@ def _(
                 else np.nan
             )
             cv_between_trials_cv = (
-                cv_group["sd"] / cv_group["mean"] * 100 if cv_group["mean"] > 0 else np.nan
+                cv_group["sd"] / cv_group["mean"] * 100
+                if cv_group["mean"] > 0
+                else np.nan
             )
             print(
                 f"  {condition}: CoV of mean force across simulations/subjects = "
@@ -1401,7 +1409,6 @@ def _(
             "mean_force": force_summary,
             "force_cv": cv_summary,
         }
-
 
     # === 20% MVC (main batch) ===
     force_level_20 = 20
@@ -1518,7 +1525,9 @@ def _(
                 mn_rate_mean_mean[condition] = np.vstack(
                     (mn_rate_mean_mean[condition], mns_rate_mean)
                 )
-                mn_rate_mean_CV[condition] = np.vstack((mn_rate_mean_CV[condition], ISI_CV))
+                mn_rate_mean_CV[condition] = np.vstack(
+                    (mn_rate_mean_CV[condition], ISI_CV)
+                )
                 neurons_index[condition] = np.vstack(
                     (neurons_index[condition], selected_neurons.reshape(-1, 1))
                 )
@@ -1609,6 +1618,7 @@ def _(
                 }
             )
             df.to_csv(f"diabetes/csv_results/fr_cv_{cond}_v2.csv", index=False)
+
     return (fr_cv,)
 
 
@@ -1752,7 +1762,6 @@ def _(
 
         print(f"Motor-unit selection figure saved to: {figure_path}")
 
-
     def index_mn_selected(criteria=criteria, mn_number=mn_number):
         """Export descriptive motor-unit ID ranges for the fixed-seed selection."""
         import os
@@ -1779,8 +1788,12 @@ def _(
                     mn_number=mn_number,
                     rng=selection_rng,
                 )
-                min_index[condition] = min(min_index[condition], int(selected_neurons.min()))
-                max_index[condition] = max(max_index[condition], int(selected_neurons.max()))
+                min_index[condition] = min(
+                    min_index[condition], int(selected_neurons.min())
+                )
+                max_index[condition] = max(
+                    max_index[condition], int(selected_neurons.max())
+                )
                 sorted_ids = np.sort(selected_neurons.astype(int))
                 selection_records.append(
                     {
@@ -1822,6 +1835,7 @@ def _(
             "Selected-MU ID summary saved to: "
             "diabetes/csv_results/hdsemg_selected_motor_units_v2.csv"
         )
+
     return index_mn_selected, what_mn_selected
 
 
@@ -1880,6 +1894,7 @@ def _(
         # Collect ISI CoV values for all motor units, not only selected units.
         force_level = 20
         all_cov_data = {condition: [] for condition in conditions}
+        sentinel_counts = {condition: 0 for condition in conditions}
 
         for trial in trials:
             for condition in conditions:
@@ -1892,14 +1907,21 @@ def _(
 
                 # Compute ISI CoV for every motor unit without selection.
                 all_neurons = np.unique(data[:, 0])
-                ISI_CV, _ = compute_cv(all_neurons, data, t_start, t_end)
+                ISI_CV, ISI_mean = compute_cv(all_neurons, data, t_start, t_end)
+
+                # Units with three or fewer intervals get the sentinel ISI-CoV
+                # of 1.0 and a zero ISI mean. Keep them out of the histogram so
+                # the terminal bin holds estimated values only; they are drawn
+                # as a separate hatched bar and stay in the annotated total.
+                sentinel_mask = ISI_mean == 0
 
                 # Retain valid CoV estimates.
-                valid_mask = ISI_CV > 0
+                valid_mask = (ISI_CV > 0) & ~sentinel_mask
                 valid_cov = ISI_CV[valid_mask]
 
                 # Accumulate observations for this condition.
                 all_cov_data[condition].extend(valid_cov)
+                sentinel_counts[condition] += int(np.count_nonzero(sentinel_mask))
 
         # Create one histogram per condition.
         fig, axes = plt.subplots(1, 2, sharey=True, figsize=(12, 5))
@@ -1909,9 +1931,11 @@ def _(
 
             # ISI CoV observations for this condition.
             cov_data = np.array(all_cov_data[condition])
+            n_sentinel = sentinel_counts[condition]
 
             # Plot the distribution.
             n_bins = np.linspace(0, 1.0, 21)
+            bin_width = n_bins[1] - n_bins[0]
             ax.hist(
                 cov_data,
                 bins=n_bins,
@@ -1920,14 +1944,36 @@ def _(
                 edgecolor="black",
                 linewidth=0.5,
             )
-            ax.set_xlim(0, 1.0)
+
+            # Draw units whose ISI-CoV could not be estimated as a separate
+            # hatched bar, offset past the terminal bin of the histogram.
+            ax.bar(
+                1.0 + 1.5 * bin_width,
+                n_sentinel,
+                width=bin_width,
+                align="center",
+                facecolor="white",
+                edgecolor="black",
+                linewidth=0.5,
+                hatch="///",
+                # label="ISI-CoV not estimable (≤3 ISIs)",
+            )
+            ax.annotate(
+                f"{n_sentinel}",
+                (1.0 + 1.5 * bin_width, n_sentinel),
+                ha="center",
+                va="bottom",
+                fontsize=fs_ticklabels,
+            )
+            ax.set_xlim(0, 1.0 + 3 * bin_width)
 
             # Shade the region that satisfies the selection threshold.
             ax.axvspan(0, 0.3, alpha=0.3, color=colors[conditions[1]], zorder=0)
 
-            # Count motor units below the threshold.
+            # Count motor units below the threshold. Units without an estimable
+            # ISI-CoV remain in the denominator because they are ineligible.
             count_low_cov = np.sum(cov_data < 0.3)
-            total_neurons = len(cov_data)
+            total_neurons = len(cov_data) + n_sentinel
 
             # Annotate the count below the threshold.
             ax.text(
@@ -1954,6 +2000,16 @@ def _(
             # Mark the selection threshold.
             ax.axvline(x=0.3, color="red", linestyle="--", alpha=0.8, linewidth=2)
 
+            # Identify the hatched bar once, on the left panel. The anchor
+            # keeps the legend clear of the threshold annotation above it.
+            if i == 0:
+                ax.legend(
+                    loc="upper center",
+                    bbox_to_anchor=(0.5, 0.84),
+                    fontsize=fs_legend,
+                    frameon=False,
+                )
+
         # Adjust and save the figure.
         fig.tight_layout()
 
@@ -1963,6 +2019,7 @@ def _(
         plt.close(fig)
 
         print(f"ISI CoV histograms for all motor units saved to: {filename}")
+
     return (isi_cov_histograms,)
 
 
@@ -2025,7 +2082,6 @@ def _(np):
             "effect": second - first,
         }
 
-
     def holm_adjust_pvalues(p_values):
         """Return Holm family-wise-error adjusted p-values in original order."""
         p_values = np.asarray(p_values, dtype=float)
@@ -2043,7 +2099,6 @@ def _(np):
             running_maximum = max(running_maximum, float(candidate))
             adjusted[original_index] = min(running_maximum, 1.0)
         return adjusted
-
 
     def summarize_force_level_dependence(
         effects_by_force,
@@ -2083,7 +2138,9 @@ def _(np):
             friedman_statistic = float(friedman_result.statistic)
             friedman_p_value = float(friedman_result.pvalue)
 
-        nonreference_forces = [force for force in force_levels if force != reference_force]
+        nonreference_forces = [
+            force for force in force_levels if force != reference_force
+        ]
         comparison_pairs = [(reference_force, force) for force in nonreference_forces]
         for index, first_force in enumerate(nonreference_forces):
             for second_force in nonreference_forces[index + 1 :]:
@@ -2122,6 +2179,7 @@ def _(np):
             "friedman_p_value": friedman_p_value,
             "contrasts": contrasts,
         }
+
     return (
         holm_adjust_pvalues,
         paired_subject_effects,
@@ -2264,7 +2322,9 @@ def _(
                 if _key != "isi_cv"
             }
         )
-        _row.update({f"isi_cv_{_key}": _value for _key, _value in _result["isi_cv"].items()})
+        _row.update(
+            {f"isi_cv_{_key}": _value for _key, _value in _result["isi_cv"].items()}
+        )
         _additional_force_rows.append(_row)
 
     pd.DataFrame(_additional_force_rows).to_csv(
@@ -2348,7 +2408,6 @@ def _(
     )
     _seed_base = int(bootstrap_seeds["Force-level robustness"])
 
-
     def _standardized_result(result, outcome):
         if outcome == "firing_rate":
             return {
@@ -2388,14 +2447,15 @@ def _(
             "selection_seed": isi_result["selection_seed"],
         }
 
-
     _summary_rows = []
     _subject_rows = []
     for _outcome, _value_key, _unit in _outcomes:
         for _estimate, _force_results in _result_by_estimate.items():
             _estimate_rows = []
             for _force_level in (10, 20, 50):
-                _standardized = _standardized_result(_force_results[_force_level], _outcome)
+                _standardized = _standardized_result(
+                    _force_results[_force_level], _outcome
+                )
                 _row = {
                     "outcome": _outcome,
                     "outcome_unit": _unit,
@@ -2430,7 +2490,9 @@ def _(
                         }
                     )
 
-            _adjusted = holm_adjust_pvalues([row["raw_p_value"] for row in _estimate_rows])
+            _adjusted = holm_adjust_pvalues(
+                [row["raw_p_value"] for row in _estimate_rows]
+            )
             for _row, _adjusted_p_value in zip(_estimate_rows, _adjusted):
                 _row["holm_adjusted_p_value_across_mvc"] = float(_adjusted_p_value)
             _summary_rows.extend(_estimate_rows)
@@ -2458,7 +2520,9 @@ def _(
                 conditions,
             )
             _truth_effects = paired_subject_effects(
-                _data_by_estimate["simulation_truth_all_active_motor_units"][_force_level],
+                _data_by_estimate["simulation_truth_all_active_motor_units"][
+                    _force_level
+                ],
                 _value_key,
                 conditions,
             )
@@ -2492,7 +2556,9 @@ def _(
                 }
             )
 
-        _adjusted = holm_adjust_pvalues([row["raw_p_value"] for row in _outcome_bias_rows])
+        _adjusted = holm_adjust_pvalues(
+            [row["raw_p_value"] for row in _outcome_bias_rows]
+        )
         for _row, _adjusted_p_value in zip(_outcome_bias_rows, _adjusted):
             _row["holm_adjusted_p_value_across_mvc"] = float(_adjusted_p_value)
         _bias_rows.extend(_outcome_bias_rows)
@@ -2551,7 +2617,9 @@ def _(
     print("=" * 78)
     for _outcome, _, _unit in _outcomes:
         print(f"\n{_outcome} ({_unit})")
-        for _row in _summary_frame[_summary_frame["outcome"] == _outcome].to_dict("records"):
+        for _row in _summary_frame[_summary_frame["outcome"] == _outcome].to_dict(
+            "records"
+        ):
             print(
                 f"  {_row['force_level_mvc']:>2}% MVC, {_row['estimate']}: "
                 f"{_row['condition_effect']:+.4f} "
@@ -2580,7 +2648,6 @@ def _(
                     f"Holm p={_contrast['holm_adjusted_p_value']:.4g}"
                 )
 
-
     def finalize_force_robustness_figure(
         figure,
         handles,
@@ -2607,7 +2674,6 @@ def _(
         )
         figure.tight_layout(rect=(0, 0, 1, 0.80))
         return title, legend
-
 
     _figure, _axes = plt.subplots(1, 2, figsize=(14, 6))
     _estimate_styles = {
@@ -2658,7 +2724,9 @@ def _(
         _axis.set_xticks([10, 20, 50])
         _axis.set_xlabel("Contraction intensity (% MVC)", fontsize=fs_label)
         _axis.set_ylabel(_axis_labels[_outcome], fontsize=fs_label)
-        _axis.set_title(_panel_titles[_outcome], fontsize=fs_title, fontweight=fontweight)
+        _axis.set_title(
+            _panel_titles[_outcome], fontsize=fs_title, fontweight=fontweight
+        )
         _axis.tick_params(axis="both", labelsize=fs_ticklabels)
 
     _handles, _labels = _axes[0].get_legend_handles_labels()
@@ -2731,7 +2799,6 @@ def _(compute_cv, compute_fr, conditions, np, path, pd, stats, t_end, t_start):
                 )
         return cache
 
-
     def _selection_mean_rate(unit_stats, fmin, fmax, isicv, mn_number, rng):
         """Sample eligible MUs and return their mean rate and the pool size."""
         _, firing_rate, isi_cov = unit_stats
@@ -2750,7 +2817,6 @@ def _(compute_cv, compute_fr, conditions, np, path, pd, stats, t_end, t_start):
             )
         selected = rng.choice(eligible, size=mn_number, replace=False)
         return float(firing_rate[selected].mean()), pool_size
-
 
     def selection_paired_difference(
         cache, trials, fmin, fmax, isicv, mn_number, selection_seed
@@ -2794,7 +2860,6 @@ def _(compute_cv, compute_fr, conditions, np, path, pd, stats, t_end, t_start):
             "max_eligible_pool": int(max(pool_sizes)) if pool_sizes else 0,
         }
 
-
     def selection_seed_stability(
         cache, trials, fmin, fmax, isicv, mn_number, selection_seeds
     ):
@@ -2813,7 +2878,6 @@ def _(compute_cv, compute_fr, conditions, np, path, pd, stats, t_end, t_start):
                 for selection_seed in selection_seeds
             ]
         )
-
 
     def simulation_truth_paired_difference(cache, trials):
         """Return the paired comparison over every active MU in each simulation."""
@@ -2842,7 +2906,6 @@ def _(compute_cv, compute_fr, conditions, np, path, pd, stats, t_end, t_start):
             "max_active_motor_units": int(max(active_counts)),
         }
 
-
     def selection_stability_summary(distribution):
         """Summarize across-seed variation without treating it as sampling error."""
         differences = distribution["difference"].to_numpy(dtype=float)
@@ -2861,6 +2924,7 @@ def _(compute_cv, compute_fr, conditions, np, path, pd, stats, t_end, t_start):
             "eligible_pool_median": float(distribution["median_eligible_pool"].median()),
             "eligible_pool_maximum": int(distribution["max_eligible_pool"].max()),
         }
+
     return (
         build_mu_stats,
         selection_paired_difference,
@@ -2896,7 +2960,6 @@ def _(
     os.makedirs("diabetes/figures", exist_ok=True)
     os.makedirs("diabetes/csv_results", exist_ok=True)
 
-
     def add_threshold_truth_reference(ax, truth_difference):
         """Add Figure 3's emphasized simulation-truth reference."""
         return ax.axhline(
@@ -2906,7 +2969,6 @@ def _(
             linewidth=3,
             label=f"Simulation truth ({truth_difference:+.2f} pps)",
         )
-
 
     _stability_seeds = np.arange(
         selection_seeds["seed_stability_start"],
@@ -3056,7 +3118,9 @@ def _(
         f"Common ordered seed set: {_stability_seeds[0]}-{_stability_seeds[-1]} "
         "at every threshold"
     )
-    print(f"\n{'ISI-CoV':>8}{'median difference':>20}{'95% seed range':>27}{'min pool':>10}")
+    print(
+        f"\n{'ISI-CoV':>8}{'median difference':>20}{'95% seed range':>27}{'min pool':>10}"
+    )
     for _row in _threshold_summaries:
         _flag = "   <- main analysis" if _row["isicv"] == criteria["isicv"] else ""
         print(
@@ -3074,7 +3138,9 @@ def _(
     _median = _threshold_summary_frame["median_difference_across_seeds"].to_numpy(
         dtype=float
     )
-    _lower = _threshold_summary_frame["selection_range_2_5_percentile"].to_numpy(dtype=float)
+    _lower = _threshold_summary_frame["selection_range_2_5_percentile"].to_numpy(
+        dtype=float
+    )
     _upper = _threshold_summary_frame["selection_range_97_5_percentile"].to_numpy(
         dtype=float
     )
