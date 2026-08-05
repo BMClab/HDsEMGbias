@@ -76,7 +76,7 @@ Expected: Chromium installation succeeds. No file under `diabetes/results/` is r
 
 - [ ] **Step 4: Ignore only the derived analysis-v2 session snapshot**
 
-Append to `.gitignore`:
+Insert this rule immediately after the existing `diabetes/results/` line so both analysis data boundaries remain together:
 
 ```gitignore
 # marimo's analysis-v2 session snapshot embeds derived executed outputs.
@@ -160,7 +160,7 @@ class ProvenanceTest(unittest.TestCase):
 
             def run_git(_repo_root, *arguments):
                 if arguments == ("rev-parse", "--show-toplevel"):
-                    self.assertEqual(Path(_repo_root), source.parent)
+                    self.assertEqual(Path(_repo_root).resolve(), source.parent.resolve())
                     return directory
                 if arguments == ("rev-parse", "HEAD"):
                     return "0123456789abcdef"
@@ -618,6 +618,8 @@ Expected: only reviewed tracked outputs are committed and the worktree returns t
 - Temporary only: `/tmp/analysis_v2_expected_commit.txt`
 - Temporary only: `/tmp/analysis_v2_expected_notebook_sha.txt`
 - Temporary only: `/tmp/analysis_v2_expected_versions.txt`
+- Temporary only: `/tmp/analysis_v2_last_run.txt`
+- Temporary only: `/tmp/analysis_v2_last_run_flat.txt`
 - Temporary only: `/tmp/analysis_v2_pdf_pages/`
 
 **Interfaces:**
@@ -629,11 +631,14 @@ Expected: only reviewed tracked outputs are committed and the worktree returns t
 Run:
 
 ```bash
+set -euo pipefail
 git status --short --branch
+test -z "$(git status --porcelain --untracked-files=all)"
 git ls-files -z diabetes/figures diabetes/csv_results | xargs -0 sha256sum > /tmp/analysis_v2_final_baseline.sha256
 git rev-parse HEAD > /tmp/analysis_v2_expected_commit.txt
 sha256sum diabetes/analysis_v2.py | cut -d " " -f 1 > /tmp/analysis_v2_expected_notebook_sha.txt
-uv run python -c "import platform; from importlib.metadata import version; print(platform.python_version()); [print(version(name)) for name in ('marimo', 'numpy', 'pandas', 'matplotlib', 'scipy')]" > /tmp/analysis_v2_expected_versions.txt
+uv run python -c "import platform; from importlib.metadata import version; print('Python' + platform.python_version()); [print(label + version(name)) for label, name in (('marimo', 'marimo'), ('NumPy', 'numpy'), ('pandas', 'pandas'), ('Matplotlib', 'matplotlib'), ('SciPy', 'scipy'))]" > /tmp/analysis_v2_expected_versions.txt
+test "$(wc -l < /tmp/analysis_v2_expected_versions.txt)" -eq 6
 ```
 
 Expected: clean tracked worktree, 36 generated-output hashes, and exact expected provenance values captured before execution.
@@ -653,10 +658,11 @@ Expected: 4–8 minutes, exit code 0, and a nonempty PDF. Poll the process at le
 Run:
 
 ```bash
+set -euo pipefail
 sha256sum -c /tmp/analysis_v2_final_baseline.sha256
-git status --porcelain --untracked-files=all
+test -z "$(git status --porcelain --untracked-files=all)"
 git check-ignore -v diabetes/__marimo__/session/analysis_v2.py.json
-git ls-files diabetes/__marimo__/session/analysis_v2.py.json
+test -z "$(git ls-files diabetes/__marimo__/session/analysis_v2.py.json)"
 ```
 
 Expected: every hash reports `OK`; Git status is empty because the generated session snapshot is ignored; the session path is not tracked. Stop if any condition fails.
@@ -666,20 +672,23 @@ Expected: every hash reports `OK`; Git status is empty because the generated ses
 Run:
 
 ```bash
+set -euo pipefail
 pdfinfo /tmp/analysis_v2_last_run.pdf
 pdftotext /tmp/analysis_v2_last_run.pdf /tmp/analysis_v2_last_run.txt
-for label in "Execution provenance" "Executed at" "Python" "marimo" "NumPy" "pandas" "Matplotlib" "SciPy" "Git commit" "Git state" "Notebook SHA-256"; do rg -F "$label" /tmp/analysis_v2_last_run.txt > /dev/null || exit 1; done
-rg -F -f /tmp/analysis_v2_expected_commit.txt /tmp/analysis_v2_last_run.txt
-rg -F -f /tmp/analysis_v2_expected_notebook_sha.txt /tmp/analysis_v2_last_run.txt
-rg -F -f /tmp/analysis_v2_expected_versions.txt /tmp/analysis_v2_last_run.txt
-rg -n "20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{2}:[0-9]{2}" /tmp/analysis_v2_last_run.txt
-rg -n "^[[:space:]]*clean[[:space:]]*$" /tmp/analysis_v2_last_run.txt
-if rg -n "unavailable|dirty" /tmp/analysis_v2_last_run.txt; then exit 1; fi
+tr -d '[:space:]' < /tmp/analysis_v2_last_run.txt > /tmp/analysis_v2_last_run_flat.txt
+for label in "Executionprovenance" "Executedat" "Python" "marimo" "NumPy" "pandas" "Matplotlib" "SciPy" "Gitcommit" "Gitstate" "NotebookSHA-256"; do rg -F "$label" /tmp/analysis_v2_last_run_flat.txt > /dev/null || exit 1; done
+rg -F -f /tmp/analysis_v2_expected_commit.txt /tmp/analysis_v2_last_run_flat.txt > /dev/null
+rg -F -f /tmp/analysis_v2_expected_notebook_sha.txt /tmp/analysis_v2_last_run_flat.txt > /dev/null
+while IFS= read -r expected_version; do rg -F "$expected_version" /tmp/analysis_v2_last_run_flat.txt > /dev/null || exit 1; done < /tmp/analysis_v2_expected_versions.txt
+rg -n "20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{2}:[0-9]{2}" /tmp/analysis_v2_last_run_flat.txt > /dev/null
+rg -F "Gitstateclean" /tmp/analysis_v2_last_run_flat.txt > /dev/null
+if rg -n "unavailable|dirty" /tmp/analysis_v2_last_run_flat.txt > /dev/null; then exit 1; fi
 pdfimages -list /tmp/analysis_v2_last_run.pdf
 stat -c "%n %s bytes" /tmp/analysis_v2_last_run.pdf
+test "$(stat -c %s /tmp/analysis_v2_last_run.pdf)" -lt 100000000
 ```
 
-Expected: every label and exact runtime value is searchable, the timestamp includes a UTC offset, `Git state` is exactly `clean`, no field is `unavailable`, PDF images are present, and the file is below GitHub's 100 MB file limit.
+Expected: fail-fast mode makes every assertion binding; every label and each label-plus-version token is searchable, wrapped commit/SHA text is reconstructed before matching, the timestamp includes a UTC offset, the normalized table contains `Gitstateclean`, no field is `unavailable`, PDF images are present, and the file is below GitHub's 100 MB file limit.
 
 - [ ] **Step 5: Render and inspect every page**
 
@@ -752,14 +761,17 @@ Expected: `diabetes/results/` and the analysis-v2 session snapshot are ignored a
 Run:
 
 ```bash
+set -euo pipefail
 pdfinfo diabetes/analysis_v2_last_run.pdf
 pdftotext diabetes/analysis_v2_last_run.pdf /tmp/analysis_v2_committed_pdf.txt
+tr -d '[:space:]' < /tmp/analysis_v2_committed_pdf.txt > /tmp/analysis_v2_committed_pdf_flat.txt
 git rev-parse HEAD^ > /tmp/analysis_v2_pdf_source_commit.txt
 sha256sum diabetes/analysis_v2.py | cut -d " " -f 1 > /tmp/analysis_v2_committed_notebook_sha.txt
-rg -F -f /tmp/analysis_v2_pdf_source_commit.txt /tmp/analysis_v2_committed_pdf.txt
-rg -F -f /tmp/analysis_v2_committed_notebook_sha.txt /tmp/analysis_v2_committed_pdf.txt
-rg -n "^[[:space:]]*clean[[:space:]]*$" /tmp/analysis_v2_committed_pdf.txt
-if rg -n "unavailable|dirty" /tmp/analysis_v2_committed_pdf.txt; then exit 1; fi
+rg -F -f /tmp/analysis_v2_pdf_source_commit.txt /tmp/analysis_v2_committed_pdf_flat.txt > /dev/null
+rg -F -f /tmp/analysis_v2_committed_notebook_sha.txt /tmp/analysis_v2_committed_pdf_flat.txt > /dev/null
+rg -F "Gitstateclean" /tmp/analysis_v2_committed_pdf_flat.txt > /dev/null
+if rg -n "unavailable|dirty" /tmp/analysis_v2_committed_pdf_flat.txt > /dev/null; then exit 1; fi
+test -z "$(git status --porcelain --untracked-files=all)"
 git status --short --branch
 git log -6 --oneline
 ```
