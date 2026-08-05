@@ -2000,16 +2000,6 @@ def _(
             # Mark the selection threshold.
             ax.axvline(x=0.3, color="red", linestyle="--", alpha=0.8, linewidth=2)
 
-            # Identify the hatched bar once, on the left panel. The anchor
-            # keeps the legend clear of the threshold annotation above it.
-            if i == 0:
-                ax.legend(
-                    loc="upper center",
-                    bbox_to_anchor=(0.5, 0.84),
-                    fontsize=fs_legend,
-                    frameon=False,
-                )
-
         # Adjust and save the figure.
         fig.tight_layout()
 

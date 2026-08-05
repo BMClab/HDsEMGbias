@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 import ast
+from contextlib import chdir
 import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 import unittest
+import warnings
 
 import matplotlib
 import marimo as mo
 from matplotlib import colors as mcolors
+from matplotlib.ticker import MaxNLocator
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -20,7 +24,7 @@ from scipy import stats
 NOTEBOOK = Path(__file__).parents[2] / "diabetes" / "analysis_v2.py"
 
 
-def load_notebook_function(name):
+def load_notebook_function(name, extra_namespace=None):
     tree = ast.parse(NOTEBOOK.read_text())
     definitions = {
         node.name: node
@@ -32,6 +36,8 @@ def load_notebook_function(name):
     module = ast.Module(body=[definitions[name]], type_ignores=[])
     ast.fix_missing_locations(module)
     namespace = {"np": np}
+    if extra_namespace is not None:
+        namespace.update(extra_namespace)
     exec(compile(module, str(NOTEBOOK), "exec"), namespace)
     return namespace[name]
 
@@ -162,6 +168,55 @@ class ProvenanceTest(unittest.TestCase):
 
 
 class FigureDisplayTest(unittest.TestCase):
+    def test_isi_cov_histograms_do_not_emit_empty_legend_warning(self):
+        conditions = ("normal", "DPN")
+        frame = SimpleNamespace(
+            values=np.array(
+                [
+                    [0, 0.0],
+                    [0, 5000.0],
+                    [1, 0.0],
+                    [1, 5000.0],
+                ]
+            )
+        )
+        fake_pandas = SimpleNamespace(read_csv=lambda *_args, **_kwargs: frame)
+
+        def compute_cv(_neurons, _data, _t_start, _t_end):
+            return np.array([0.1, 1.0]), np.array([100.0, 0.0])
+
+        isi_cov_histograms = load_notebook_function(
+            "isi_cov_histograms",
+            {
+                "MaxNLocator": MaxNLocator,
+                "batch_name": "variability",
+                "compute_cv": compute_cv,
+                "conditions": conditions,
+                "fontweight": "normal",
+                "fs_label": 10,
+                "fs_legend": 8,
+                "fs_ticklabels": 8,
+                "fs_title": 10,
+                "path": "unused/",
+                "pd": fake_pandas,
+                "plt": plt,
+                "t_end": 10000,
+                "t_start": 4000,
+            },
+        )
+
+        with TemporaryDirectory() as directory, chdir(directory):
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
+                isi_cov_histograms([0])
+
+        empty_legend_warnings = [
+            warning
+            for warning in caught
+            if "No artists with labels found" in str(warning.message)
+        ]
+        self.assertEqual(empty_legend_warnings, [])
+
     def test_primary_axis_uses_requested_range_with_visible_annotation(self):
         configure_primary_fr_axis = load_notebook_function(
             "configure_primary_fr_axis"
