@@ -7,7 +7,7 @@ app = marimo.App(width="full")
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    # Computational modeling reveals a potential selection bias in high-density surface electromyography analysis of diabetic neuropathy
+    # Lower apparent motor-unit discharge rates in simulated diabetic peripheral neuropathy reflect HD-sEMG-like selection rather than lower population rates
 
     > Renato Naville Watanabe and Marcos Duarte, Federal University of ABC, Brazil
     """)
