@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.17.8"
+__generated_with = "0.23.16"
 app = marimo.App(width="full")
 
 
@@ -35,6 +35,99 @@ def _():
     from scipy import stats
     from scipy.signal import butter, filtfilt
     return MaxNLocator, butter, filtfilt, mo, np, os, pd, plt, stats, sys
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    def collect_provenance(
+        notebook_path,
+        *,
+        now=None,
+        package_version=None,
+        run_git=None,
+    ):
+        from datetime import datetime
+        import hashlib
+        from importlib import metadata
+        from pathlib import Path
+        import platform
+        import subprocess
+
+        if now is None:
+            now = datetime.now().astimezone()
+        if package_version is None:
+            package_version = metadata.version
+
+        if run_git is None:
+            def run_git(repo_root, *arguments):
+                completed = subprocess.run(
+                    ["git", *arguments],
+                    cwd=repo_root,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+                return completed.stdout.strip()
+
+        source_path = Path(notebook_path).resolve()
+
+        try:
+            repo_root = Path(
+                run_git(source_path.parent, "rev-parse", "--show-toplevel")
+            ).resolve()
+        except (OSError, subprocess.CalledProcessError):
+            repo_root = None
+
+        provenance = {
+            "Executed at": now.isoformat(timespec="seconds"),
+            "Python": platform.python_version(),
+        }
+        packages = {
+            "marimo": "marimo",
+            "NumPy": "numpy",
+            "pandas": "pandas",
+            "Matplotlib": "matplotlib",
+            "SciPy": "scipy",
+        }
+        for label, distribution in packages.items():
+            try:
+                provenance[label] = package_version(distribution)
+            except Exception:
+                provenance[label] = "unavailable"
+
+        try:
+            if repo_root is None:
+                raise OSError("repository root unavailable")
+            provenance["Git commit"] = run_git(repo_root, "rev-parse", "HEAD")
+            status = run_git(repo_root, "status", "--porcelain")
+            provenance["Git state"] = "dirty" if status else "clean"
+        except (OSError, subprocess.CalledProcessError):
+            provenance["Git commit"] = "unavailable"
+            provenance["Git state"] = "unavailable"
+
+        try:
+            provenance["Notebook SHA-256"] = hashlib.sha256(
+                source_path.read_bytes()
+            ).hexdigest()
+        except OSError:
+            provenance["Notebook SHA-256"] = "unavailable"
+
+        return provenance
+
+    def format_provenance_markdown(provenance):
+        rows = "\n".join(
+            f"| {label} | `{value}` |" for label, value in provenance.items()
+        )
+        return (
+            "### Execution provenance\n\n"
+            "| Item | Value |\n"
+            "|---|---|\n"
+            f"{rows}"
+        )
+
+    _provenance = collect_provenance(__file__)
+    mo.md(format_provenance_markdown(_provenance))
+    return
 
 
 @app.cell(hide_code=True)

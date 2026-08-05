@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import ast
+import hashlib
+from datetime import datetime, timezone
 from pathlib import Path
+from tempfile import TemporaryDirectory
 import unittest
 
 import matplotlib
+import marimo as mo
 from matplotlib import colors as mcolors
 
 matplotlib.use("Agg")
@@ -47,6 +51,114 @@ def load_notebook_functions(*names):
     namespace = {"np": np}
     exec(compile(module, str(NOTEBOOK), "exec"), namespace)
     return tuple(namespace[name] for name in names)
+
+
+class ProvenanceTest(unittest.TestCase):
+    def setUp(self):
+        self.collect_provenance = load_notebook_function("collect_provenance")
+        self.format_provenance_markdown = load_notebook_function(
+            "format_provenance_markdown"
+        )
+        self.executed_at = datetime(2026, 8, 4, 22, 42, 41, tzinfo=timezone.utc)
+
+    def test_collects_versions_clean_git_state_and_source_digest(self):
+        versions = {
+            "marimo": "0.23.16",
+            "numpy": "1.26.0",
+            "pandas": "3.0.5",
+            "matplotlib": "3.11.1",
+            "scipy": "1.16.3",
+        }
+
+        def package_version(name):
+            return versions[name]
+
+        with TemporaryDirectory() as directory:
+            source = Path(directory) / "diabetes" / "analysis_v2.py"
+            source.parent.mkdir()
+            source.write_text("print('analysis')\n")
+
+            def run_git(_repo_root, *arguments):
+                if arguments == ("rev-parse", "--show-toplevel"):
+                    self.assertEqual(Path(_repo_root).resolve(), source.parent.resolve())
+                    return directory
+                if arguments == ("rev-parse", "HEAD"):
+                    return "0123456789abcdef"
+                if arguments == ("status", "--porcelain"):
+                    return ""
+                raise AssertionError(arguments)
+
+            result = self.collect_provenance(
+                source,
+                now=self.executed_at,
+                package_version=package_version,
+                run_git=run_git,
+            )
+
+        self.assertEqual(result["Executed at"], "2026-08-04T22:42:41+00:00")
+        self.assertEqual(result["marimo"], "0.23.16")
+        self.assertEqual(result["NumPy"], "1.26.0")
+        self.assertEqual(result["pandas"], "3.0.5")
+        self.assertEqual(result["Matplotlib"], "3.11.1")
+        self.assertEqual(result["SciPy"], "1.16.3")
+        self.assertEqual(result["Git commit"], "0123456789abcdef")
+        self.assertEqual(result["Git state"], "clean")
+        self.assertEqual(
+            result["Notebook SHA-256"],
+            hashlib.sha256(b"print('analysis')\n").hexdigest(),
+        )
+
+    def test_marks_a_dirty_worktree(self):
+        def run_git(_repo_root, *arguments):
+            if arguments == ("rev-parse", "--show-toplevel"):
+                return str(NOTEBOOK.parents[1])
+            if arguments == ("rev-parse", "HEAD"):
+                return "0123456789abcdef"
+            if arguments == ("status", "--porcelain"):
+                return " M uv.lock"
+            raise AssertionError(arguments)
+
+        result = self.collect_provenance(
+            NOTEBOOK,
+            now=self.executed_at,
+            package_version=lambda _name: "test-version",
+            run_git=run_git,
+        )
+
+        self.assertEqual(result["Git state"], "dirty")
+
+    def test_formats_a_real_unindented_markdown_table(self):
+        markdown = self.format_provenance_markdown(
+            {"Executed at": "2026-08-04T22:42:41+00:00", "Git state": "clean"}
+        )
+        rendered = mo.md(markdown)
+
+        self.assertTrue(
+            all(not line.startswith("    ") for line in markdown.splitlines())
+        )
+        self.assertIn("<table>", rendered.text)
+        self.assertIn("<td><code>clean</code></td>", rendered.text)
+        self.assertEqual(rendered.text.count("<tr>"), 3)
+
+    def test_degrades_when_package_git_and_source_metadata_are_unavailable(self):
+        def unavailable_version(_name):
+            raise RuntimeError("metadata unavailable")
+
+        def unavailable_git(_repo_root, *_arguments):
+            raise OSError("git unavailable")
+
+        result = self.collect_provenance(
+            NOTEBOOK.with_name("missing.py"),
+            now=self.executed_at,
+            package_version=unavailable_version,
+            run_git=unavailable_git,
+        )
+
+        for label in ("marimo", "NumPy", "pandas", "Matplotlib", "SciPy"):
+            self.assertEqual(result[label], "unavailable")
+        self.assertEqual(result["Git commit"], "unavailable")
+        self.assertEqual(result["Git state"], "unavailable")
+        self.assertEqual(result["Notebook SHA-256"], "unavailable")
 
 
 class FigureDisplayTest(unittest.TestCase):
