@@ -180,6 +180,9 @@ def _(np, sys):
         "50% MVC HD-sEMG": 20260113,
         "50% MVC all motor units": 20260114,
         "Force-level robustness": 20260117,
+        "Eligible pool": 20260120,
+        "10% MVC eligible pool": 20260121,
+        "50% MVC eligible pool": 20260122,
     }
     return (
         batch_name,
@@ -216,10 +219,10 @@ def _(mo):
 def _(
     bootstrap_seeds,
     butter,
-    color,
     criteria,
     filtfilt,
     fs_label,
+    fs_legend,
     fs_ticklabels,
     fs_title,
     mn_number,
@@ -257,6 +260,25 @@ def _(
         unique_neurons = np.unique(data[:, 0])
         return unique_neurons.astype(int)
 
+    def eligible_mns_hdemg(data, t_start, t_end, criteria, column_spikes=1):
+        """Return every motor unit meeting the HD-sEMG-like eligibility criteria."""
+        steady_data = data[
+            (data[:, column_spikes] >= t_start) & (data[:, column_spikes] <= t_end)
+        ]
+        unique_neurons = np.unique(data[:, 0])
+        ISI_CV, _ = compute_cv(
+            unique_neurons, steady_data, t_start, t_end, column_spikes=column_spikes
+        )
+        fr = compute_fr(
+            unique_neurons, data, t_start, t_end, column_spikes=column_spikes
+        )
+        selection_criteria = np.where(
+            (fr > criteria["fmin"])
+            & (fr < criteria["fmax"])
+            & (ISI_CV <= criteria["isicv"])
+        )[0]
+        return unique_neurons[selection_criteria].astype(int)
+
     def select_mns_hdemg(
         data,
         t_start,
@@ -272,23 +294,9 @@ def _(
                 "A seeded NumPy Generator is required for random selection."
             )
 
-        steady_data = data[
-            (data[:, column_spikes] >= t_start) & (data[:, column_spikes] <= t_end)
-        ]
-        unique_neurons = np.unique(data[:, 0])
-        ISI_CV, _ = compute_cv(
-            unique_neurons, steady_data, t_start, t_end, column_spikes=column_spikes
+        eligible_neurons = eligible_mns_hdemg(
+            data, t_start, t_end, criteria, column_spikes=column_spikes
         )
-        fr = compute_fr(
-            unique_neurons, data, t_start, t_end, column_spikes=column_spikes
-        )
-        # Apply the HD-sEMG-like eligibility criteria.
-        selection_criteria = np.where(
-            (fr > criteria["fmin"])
-            & (fr < criteria["fmax"])
-            & (ISI_CV <= criteria["isicv"])
-        )[0]
-        eligible_neurons = unique_neurons[selection_criteria].astype(int)
         if eligible_neurons.size < mn_number:
             raise ValueError(
                 f"Cannot select {mn_number} HD-sEMG motor units from "
@@ -472,6 +480,10 @@ def _(
                         mn_number=mn_number,
                         rng=selection_rng,
                     )
+                elif mode == "eligible":
+                    selected_neurons = eligible_mns_hdemg(
+                        data, t_start_param, t_end_param, criteria
+                    )
                 elif mode == "all":
                     selected_neurons = np.unique(data[:, 0]).astype(int)
                 else:
@@ -537,36 +549,53 @@ def _(
         mean_fr,
         yerr,
         truth_mean_fr,
-        normal_jitter,
-        truth_line_width,
-        mean_marker_size=8,
+        pool_mean_fr,
+        half_width,
+        mean_marker_size=9,
+        estimate_color="#0072B2",
+        pool_color="#E69F00",
+        truth_color="black",
     ):
-        """Add visually distinct HD-sEMG and simulation-truth summaries."""
+        """Add the HD-sEMG mean (95% CI), eligible-pool, and simulation-truth summaries.
+
+        Colours follow the Okabe-Ito palette, which stays distinguishable for
+        red-green colour-vision deficiencies; line style separates pool and truth.
+        """
         estimate_handle = ax.errorbar(
             [1, 2],
             mean_fr,
-            marker="o",
-            linestyle="",
-            color="red",
-            markersize=mean_marker_size,
-            markeredgewidth=2,
             yerr=yerr,
-            capsize=5,
-            barsabove=True,
+            fmt="D",
+            color=estimate_color,
+            markersize=mean_marker_size,
+            capsize=6,
+            elinewidth=2,
+            markeredgewidth=2,
             zorder=6,
         )
+        centers = np.array([1.0, 2.0])
         truth_handle = ax.hlines(
             truth_mean_fr,
-            xmin=[normal_jitter.min(), 2 - truth_line_width / 2],
-            xmax=[normal_jitter.max(), 2 + truth_line_width / 2],
-            colors="green",
+            xmin=centers - half_width,
+            xmax=centers + half_width,
+            colors=truth_color,
             linewidths=3,
-            zorder=5,
+            linestyles="solid",
+            zorder=4,
         )
-        return estimate_handle, truth_handle
+        pool_handle = ax.hlines(
+            pool_mean_fr,
+            xmin=centers - half_width,
+            xmax=centers + half_width,
+            colors=pool_color,
+            linewidths=3,
+            linestyles="dashed",
+            zorder=4,
+        )
+        return estimate_handle, pool_handle, truth_handle
 
     def add_primary_fr_significance(ax, p_value, significance_y):
-        """Add the red significance annotation for the HD-sEMG comparison."""
+        """Add the significance bracket for the HD-sEMG comparison."""
         if p_value >= 0.05:
             return (), None
 
@@ -574,48 +603,51 @@ def _(
             ax.plot(
                 [1, 2],
                 [significance_y, significance_y],
-                color="red",
-                linewidth=2,
+                color="black",
+                linewidth=1.5,
             )[0],
             ax.plot(
                 [1, 1],
-                [significance_y - 0.5, significance_y],
-                color="red",
-                linewidth=2,
+                [significance_y - 0.4, significance_y],
+                color="black",
+                linewidth=1.5,
             )[0],
             ax.plot(
                 [2, 2],
-                [significance_y - 0.5, significance_y],
-                color="red",
-                linewidth=2,
+                [significance_y - 0.4, significance_y],
+                color="black",
+                linewidth=1.5,
             )[0],
         )
         significance = "***" if p_value < 0.001 else "**" if p_value < 0.01 else "*"
         significance_text = ax.text(
             1.5,
-            significance_y + 0.1,
+            significance_y + 0.05,
             significance,
-            color="red",
+            color="black",
             ha="center",
             va="bottom",
-            fontweight="bold",
-            fontsize="xx-large",
+            fontsize=20,
         )
         return bracket_lines, significance_text
 
-    def plot_mn_fr_combined_data(data_hdemg, data_truth, conditions, pd):
-        """Plot randomized HD-sEMG estimates against the all-MU simulation truth."""
+    def plot_mn_fr_combined_data(data_hdemg, data_truth, data_pool, conditions, pd):
+        """Plot randomized HD-sEMG estimates against the eligible pool and simulation truth."""
         os.makedirs("diabetes/figures", exist_ok=True)
         os.makedirs("diabetes/csv_results", exist_ok=True)
 
-        for condition in conditions:
-            if not np.array_equal(
-                data_hdemg["simulation_ids"][condition],
-                data_truth["simulation_ids"][condition],
-            ):
-                raise ValueError(
-                    f"HD-sEMG and simulation-truth IDs differ for {condition}."
-                )
+        for reference_name, reference in (
+            ("simulation-truth", data_truth),
+            ("eligible-pool", data_pool),
+        ):
+            for condition in conditions:
+                if not np.array_equal(
+                    data_hdemg["simulation_ids"][condition],
+                    reference["simulation_ids"][condition],
+                ):
+                    raise ValueError(
+                        f"HD-sEMG and {reference_name} IDs differ for {condition}."
+                    )
 
         bootstrap_hdemg = bootstrap_mode(
             data_hdemg,
@@ -633,6 +665,12 @@ def _(
             data_truth,
             "Simulation truth (all motor units)",
             bootstrap_seeds["All motor units"],
+            n_resamples,
+        )
+        bootstrap_pool = bootstrap_mode(
+            data_pool,
+            "Eligible pool (all eligible motor units)",
+            bootstrap_seeds["Eligible pool"],
             n_resamples,
         )
 
@@ -655,6 +693,9 @@ def _(
         truth_mean_fr = np.asarray(
             [bootstrap_truth["normal_mean_pps"], bootstrap_truth["DPN_mean_pps"]]
         )
+        pool_mean_fr = np.asarray(
+            [bootstrap_pool["normal_mean_pps"], bootstrap_pool["DPN_mean_pps"]]
+        )
 
         jitter_rng = np.random.default_rng(bootstrap_seeds["HD-sEMG"] + 10_000)
         normal_jitter = 1 + 0.1 * jitter_rng.normal(
@@ -663,34 +704,36 @@ def _(
         dpn_jitter = 2 + 0.1 * jitter_rng.normal(
             size=simulation_rates[conditions[1]].size
         )
-        truth_line_width = float(np.ptp(normal_jitter))
 
-        fig, ax = plt.subplots(figsize=(7, 6))
+        fig, ax = plt.subplots(figsize=(7.5, 6.5))
         significance_y = configure_primary_fr_axis(ax, fs_ticklabels)
-        ax.scatter(
-            normal_jitter,
-            simulation_rates[conditions[0]].ravel(),
+        subject_handle = ax.scatter(
+            np.concatenate((normal_jitter, dpn_jitter)),
+            np.concatenate(
+                (
+                    simulation_rates[conditions[0]].ravel(),
+                    simulation_rates[conditions[1]].ravel(),
+                )
+            ),
+            s=40,
             alpha=0.6,
-            color=color[conditions[0]],
+            color="#56B4E9",
+            edgecolor="none",
+            zorder=3,
         )
-        ax.scatter(
-            dpn_jitter,
-            simulation_rates[conditions[1]].ravel(),
-            alpha=0.6,
-            color=color[conditions[0]],
-        )
-        estimate_handle, truth_handle = add_primary_fr_summaries(
+        estimate_handle, pool_handle, truth_handle = add_primary_fr_summaries(
             ax,
             mean_fr,
             yerr,
             truth_mean_fr,
-            normal_jitter,
-            truth_line_width,
+            pool_mean_fr,
+            half_width=float(np.ptp(normal_jitter)) / 2,
         )
 
         p_value = bootstrap_hdemg["p_value"]
         add_primary_fr_significance(ax, p_value, significance_y)
 
+        ax.set_xlim(0.5, 2.5)
         ax.set_xticks([1, 2])
         ax.set_xticklabels(
             [
@@ -703,16 +746,18 @@ def _(
             "Mean MU firing rate per simulated subject (pps)",
             fontsize=fs_label,
         )
-        ax.set_title(f"{modes[0]} mode", fontsize=fs_title)
+        ax.set_title(f"{modes[0]}-like selection, 20% MVC", fontsize=fs_title)
         ax.legend(
-            handles=[estimate_handle, truth_handle],
+            handles=[subject_handle, estimate_handle, pool_handle, truth_handle],
             labels=[
-                "HD-sEMG mean (95% BCa CI)",
-                "Mean simulation truth (all MUs)",
+                "Simulated subject (mean of 10 selected MUs)",
+                "Across-subject mean (95% BCa CI)",
+                "Mean of all eligible MUs",
+                "Simulation truth (all active MUs)",
             ],
             loc="lower center",
             frameon=False,
-            fontsize=fs_ticklabels,
+            fontsize=fs_legend - 2,
         )
         fig.tight_layout()
 
@@ -756,6 +801,7 @@ def _(
         for prefix, result in (
             ("hdsemg", bootstrap_hdemg),
             ("truth", bootstrap_truth),
+            ("eligible_pool", bootstrap_pool),
         ):
             for key in (
                 "normal_mean_pps",
@@ -773,6 +819,18 @@ def _(
                 "p_value",
             ):
                 summary[f"{prefix}_{key}"] = result[key]
+        # How closely the 10-MU samples track the eligible pool they are drawn from.
+        for condition in conditions:
+            sample_minus_pool = (
+                data_hdemg["mn_rate_trial_mean"][condition]
+                - data_pool["mn_rate_trial_mean"][condition]
+            )
+            summary[f"sample_minus_pool_mean_{condition}"] = float(
+                np.mean(sample_minus_pool)
+            )
+            summary[f"sample_minus_pool_mean_abs_{condition}"] = float(
+                np.mean(np.abs(sample_minus_pool))
+            )
         pd.DataFrame([summary]).to_csv(
             "diabetes/csv_results/mn_firing_rate_p_values_combined_v2.csv",
             index=False,
@@ -1068,7 +1126,15 @@ def _(mo):
     ## Firing rates at 20% MVC
 
     Each simulation represents one subject. Group means, SDs, confidence intervals, and tests for firing rate and ISI-CoV therefore use one mean per simulation; raw motor-unit values are retained only for explicitly descriptive analyses.
-    In the HD-sEMG mode, 10 unique motor units are drawn without replacement from those meeting the firing-rate and ISI-CoV eligibility criteria, using the configured fixed seed. Red horizontal lines show the condition means of the subject-specific simulation truths calculated from all active MUs.
+    In the HD-sEMG mode, 10 different motor units are drawn at random from each
+    subject-condition's pool of units meeting the firing-rate and ISI-CoV eligibility
+    criteria (without replacement within each draw). One random-number stream per force
+    level, seeded once, is consumed in trial order (Normal, then DPN), so the seed is not
+    reset per subject or condition. Black lines show the condition means of the
+    subject-specific simulation truths calculated from all active MUs; orange dashed lines
+    show the condition means of all eligible MUs, the pools from which the 10-MU samples
+    are drawn. Colours follow the Okabe-Ito palette, which is safe for red-green
+    colour-vision deficiencies.
     """)
     return
 
@@ -1118,8 +1184,31 @@ def _(
         mode="HD-sEMG",
         seed=bootstrap_seeds["HD-sEMG"],
     )
-    plot_mn_fr_combined_data(data_hdemg, data_truth, conditions, pd)
-    return data_hdemg, result_hdemg
+
+    # Mean of every eligible MU: the quantity each random 10-MU sample estimates.
+    data_pool = calculate_fr_data(
+        trials,
+        "eligible",
+        pd,
+        20,
+        conditions,
+        path,
+        batch_name,
+        t_start,
+        t_end,
+        criteria=criteria,
+    )
+    print("=" * 60)
+    print("=== ELIGIBLE POOL (all HD-sEMG-eligible motor units) ===")
+    print("=" * 60)
+    result_pool = print_statistics(
+        data_pool,
+        stats,
+        mode="Eligible pool",
+        seed=bootstrap_seeds["Eligible pool"],
+    )
+    plot_mn_fr_combined_data(data_hdemg, data_truth, data_pool, conditions, pd)
+    return data_hdemg, data_pool, result_hdemg, result_pool
 
 
 @app.cell(hide_code=True)
@@ -2245,6 +2334,26 @@ def _(
         seed=bootstrap_seeds["10% MVC all motor units"],
     )
 
+    data_mvc10_pool = calculate_fr_data(
+        mvc10_trials,
+        "eligible",
+        pd,
+        mvc10_force_level,
+        conditions,
+        path,
+        mvc10_batch,
+        t_start,
+        t_end,
+        criteria=criteria,
+    )
+    print("\n--- Eligible pool (all HD-sEMG-eligible MUs) ---")
+    result_mvc10_pool = print_statistics(
+        data_mvc10_pool,
+        stats,
+        mode="10% MVC eligible pool",
+        seed=bootstrap_seeds["10% MVC eligible pool"],
+    )
+
     # === Analysis for 50% MVC simulations ===
     mvc50_trials = np.arange(50)
     mvc50_batch = "mvc50"
@@ -2297,12 +2406,34 @@ def _(
         seed=bootstrap_seeds["50% MVC all motor units"],
     )
 
+    data_mvc50_pool = calculate_fr_data(
+        mvc50_trials,
+        "eligible",
+        pd,
+        mvc50_force_level,
+        conditions,
+        path,
+        mvc50_batch,
+        t_start,
+        t_end,
+        criteria=criteria,
+    )
+    print("\n--- Eligible pool (all HD-sEMG-eligible MUs) ---")
+    result_mvc50_pool = print_statistics(
+        data_mvc50_pool,
+        stats,
+        mode="50% MVC eligible pool",
+        seed=bootstrap_seeds["50% MVC eligible pool"],
+    )
+
     _additional_force_rows = []
     for _force_level, _estimate, _result in (
         (10, "randomized_hdsemg", result_mvc10_hdemg),
         (10, "simulation_truth_all_active_motor_units", result_mvc10_truth),
+        (10, "eligible_pool_all_eligible_motor_units", result_mvc10_pool),
         (50, "randomized_hdsemg", result_mvc50_hdemg),
         (50, "simulation_truth_all_active_motor_units", result_mvc50_truth),
+        (50, "eligible_pool_all_eligible_motor_units", result_mvc50_pool),
     ):
         _row = {"force_level_mvc": _force_level, "estimate": _estimate}
         _row.update(
@@ -2638,59 +2769,51 @@ def _(
                     f"Holm p={_contrast['holm_adjusted_p_value']:.4g}"
                 )
 
-    def finalize_force_robustness_figure(
-        figure,
-        handles,
-        labels,
-        legend_fontsize,
-        title_fontsize,
-        title_fontweight,
-    ):
-        """Place the global legend below a non-overlapping figure title."""
-        title = figure.suptitle(
-            "Robustness of paired condition effects across contraction intensities",
-            fontsize=title_fontsize,
-            fontweight=title_fontweight,
-            y=0.99,
-        )
+    def finalize_force_robustness_figure(figure, handles, labels, legend_fontsize):
+        """Place the shared legend above the panel titles."""
         legend = figure.legend(
             handles,
             labels,
             loc="upper center",
-            bbox_to_anchor=(0.5, 0.91),
+            bbox_to_anchor=(0.5, 1.02),
             ncol=2,
             fontsize=legend_fontsize,
             frameon=False,
         )
-        figure.tight_layout(rect=(0, 0, 1, 0.80))
-        return title, legend
+        figure.tight_layout(rect=(0, 0, 1, 0.90))
+        return legend
+
+    def force_robustness_estimate_styles():
+        """Okabe-Ito blue and black, separated by marker and line style (red-green safe)."""
+        return {
+            "randomized_hdsemg": {
+                "label": "Randomized HD-sEMG-like estimate (10 MUs)",
+                "color": "#0072B2",
+                "marker": "o",
+                "linestyle": "-",
+                "offset": -0.7,
+            },
+            "simulation_truth_all_active_motor_units": {
+                "label": "Simulation truth (all active MUs)",
+                "color": "black",
+                "marker": "s",
+                "linestyle": "--",
+                "offset": 0.7,
+            },
+        }
 
     _figure, _axes = plt.subplots(1, 2, figsize=(14, 6))
-    _estimate_styles = {
-        "randomized_hdsemg": {
-            "label": "Randomized HD-sEMG estimate (10 MUs)",
-            "color": "red",
-            "marker": "o",
-            "offset": -0.7,
-        },
-        "simulation_truth_all_active_motor_units": {
-            "label": "Simulation truth (all active MUs)",
-            "color": "green",
-            "marker": "s",
-            "offset": 0.7,
-        },
-    }
     _axis_labels = {
-        "firing_rate": "DPN - Normal firing rate (pps)",
-        "isi_cv": "DPN - Normal mean ISI-CoV",
+        "firing_rate": "DPN − Normal firing rate (pps)",
+        "isi_cv": "DPN − Normal mean ISI-CoV",
     }
     _panel_titles = {
-        "firing_rate": "Firing rate",
-        "isi_cv": "ISI-CoV",
+        "firing_rate": "A  Firing rate",
+        "isi_cv": "B  ISI-CoV",
     }
     for _axis, (_outcome, _, _) in zip(_axes, _outcomes):
-        _axis.axhline(0, color="black", linewidth=1, zorder=0)
-        for _estimate, _style in _estimate_styles.items():
+        _axis.axhline(0, color="grey", linewidth=1, zorder=0)
+        for _estimate, _style in force_robustness_estimate_styles().items():
             _plot_data = _summary_frame[
                 (_summary_frame["outcome"] == _outcome)
                 & (_summary_frame["estimate"] == _estimate)
@@ -2705,6 +2828,7 @@ def _(
                 yerr=np.vstack((_effect - _lower, _upper - _effect)),
                 color=_style["color"],
                 marker=_style["marker"],
+                linestyle=_style["linestyle"],
                 markersize=9,
                 linewidth=2,
                 capsize=5,
@@ -2715,7 +2839,10 @@ def _(
         _axis.set_xlabel("Contraction intensity (% MVC)", fontsize=fs_label)
         _axis.set_ylabel(_axis_labels[_outcome], fontsize=fs_label)
         _axis.set_title(
-            _panel_titles[_outcome], fontsize=fs_title, fontweight=fontweight
+            _panel_titles[_outcome],
+            fontsize=fs_title,
+            fontweight=fontweight,
+            loc="left",
         )
         _axis.tick_params(axis="both", labelsize=fs_ticklabels)
 
@@ -2724,9 +2851,7 @@ def _(
         _figure,
         _handles,
         _labels,
-        legend_fontsize=fs_legend,
-        title_fontsize=fs_title,
-        title_fontweight=fontweight,
+        legend_fontsize=fs_legend - 2,
     )
     _figure_path = "diabetes/figures/force_level_robustness_v2.png"
     _figure.savefig(_figure_path, dpi=300, bbox_inches="tight")
@@ -2743,9 +2868,13 @@ def _(mo):
     mo.md(r"""
     ## Selection-threshold sensitivity analysis
 
-    At 20% MVC, the ISI-CoV eligibility threshold was varied while holding the
-    remaining selection criteria constant to assess the sensitivity of
-    HD-sEMG-like estimates to this analytical choice.
+    The ISI-CoV ceiling is the least standardized eligibility criterion (0.25-0.50 in
+    the cited studies), and a regularity criterion acts differently on populations
+    whose discharge variability differs. At 10%, 20%, and 50% MVC, the ceiling was
+    therefore varied from 0.15 to 0.50 while holding the firing-rate window and sample
+    size constant. Whereas the selection-seed analysis varies only which eligible MUs
+    are drawn, this analysis varies the eligibility criterion itself; neither
+    contributes to the primary fixed-seed estimates.
 
     The HD-sEMG analysis first applies a firing-rate window
     (`fmin < FR < fmax`) and an ISI-CoV ceiling, then randomly samples 10 eligible
@@ -2756,8 +2885,9 @@ def _(mo):
     and 50% MVC. The threshold analysis uses that same ordered seed set at every
     ISI-CoV threshold (common random numbers), so differences along the curve are
     less affected by unrelated draw noise. Its shaded band is the central 95%
-    across-selection-seed range, not a confidence interval. The known mean over
-    all active motor units is shown separately as the simulation truth.
+    across-selection-seed range, not a confidence interval. The mean of all eligible
+    MUs (open orange triangles) is the value each 10-MU sample estimates, and the known
+    mean over all active motor units is shown separately as the simulation truth.
     """)
     return
 
@@ -2789,15 +2919,19 @@ def _(compute_cv, compute_fr, conditions, np, path, pd, stats, t_end, t_start):
                 )
         return cache
 
-    def _selection_mean_rate(unit_stats, fmin, fmax, isicv, mn_number, rng):
-        """Sample eligible MUs and return their mean rate and the pool size."""
-        _, firing_rate, isi_cov = unit_stats
-        eligible = np.where(
+    def _eligible_units(firing_rate, isi_cov, fmin, fmax, isicv):
+        """Indices of active MUs meeting the firing-rate window and ISI-CoV ceiling."""
+        return np.where(
             (firing_rate >= 0.01)
             & (firing_rate > fmin)
             & (firing_rate < fmax)
             & (isi_cov <= isicv)
         )[0]
+
+    def _selection_mean_rate(unit_stats, fmin, fmax, isicv, mn_number, rng):
+        """Sample eligible MUs and return their mean rate and the pool size."""
+        _, firing_rate, isi_cov = unit_stats
+        eligible = _eligible_units(firing_rate, isi_cov, fmin, fmax, isicv)
         pool_size = int(eligible.size)
         if pool_size < mn_number:
             raise ValueError(
@@ -2869,6 +3003,27 @@ def _(compute_cv, compute_fr, conditions, np, path, pd, stats, t_end, t_start):
             ]
         )
 
+    def eligible_pool_paired_difference(cache, trials, fmin, fmax, isicv):
+        """Return the paired comparison over all eligible MUs (no sampling)."""
+        condition_means = {condition: [] for condition in conditions}
+        for trial in trials:
+            for condition in conditions:
+                _, firing_rate, isi_cov = cache[(condition, int(trial))]
+                eligible = _eligible_units(firing_rate, isi_cov, fmin, fmax, isicv)
+                condition_means[condition].append(float(firing_rate[eligible].mean()))
+
+        normal = np.asarray(condition_means[conditions[0]], dtype=float)
+        dpn = np.asarray(condition_means[conditions[1]], dtype=float)
+        wilcoxon_result = stats.wilcoxon(dpn, normal)
+        return {
+            "normal_mean": float(normal.mean()),
+            "dpn_mean": float(dpn.mean()),
+            "difference": float((dpn - normal).mean()),
+            "wilcoxon_statistic": float(wilcoxon_result.statistic),
+            "p_value": float(wilcoxon_result.pvalue),
+            "n_pairs": int(normal.size),
+        }
+
     def simulation_truth_paired_difference(cache, trials):
         """Return the paired comparison over every active MU in each simulation."""
         condition_means = {condition: [] for condition in conditions}
@@ -2917,6 +3072,7 @@ def _(compute_cv, compute_fr, conditions, np, path, pd, stats, t_end, t_start):
 
     return (
         build_mu_stats,
+        eligible_pool_paired_difference,
         selection_paired_difference,
         selection_seed_stability,
         selection_stability_summary,
@@ -2929,7 +3085,7 @@ def _(
     batch_name,
     build_mu_stats,
     criteria,
-    fontweight,
+    eligible_pool_paired_difference,
     fs_label,
     fs_legend,
     fs_ticklabels,
@@ -2954,11 +3110,75 @@ def _(
         """Add Figure 3's emphasized simulation-truth reference."""
         return ax.axhline(
             truth_difference,
-            color="green",
+            color="black",
             linestyle="--",
-            linewidth=3,
-            label=f"Simulation truth ({truth_difference:+.2f} pps)",
+            linewidth=2.5,
+            label="Simulation truth (all active MUs)",
         )
+
+    def plot_threshold_panel(
+        ax,
+        summary,
+        truth_difference,
+        panel_title,
+        main_threshold,
+        add_truth_reference,
+        estimate_color="#0072B2",
+        pool_color="#E69F00",
+        label_fontsize=16,
+        tick_fontsize=16,
+        title_fontsize=20,
+        note_fontsize=12,
+    ):
+        """Draw one force level of Figure 3 (Okabe-Ito colours, red-green safe)."""
+        x = np.asarray(summary["isicv"], dtype=float)
+        ax.axhline(0, color="grey", linewidth=1)
+        add_truth_reference(ax, truth_difference)
+        ax.plot(
+            x,
+            np.asarray(summary["eligible_pool_difference"], dtype=float),
+            "^:",
+            color=pool_color,
+            linewidth=2,
+            markersize=11,
+            markerfacecolor="none",
+            markeredgewidth=2,
+            zorder=5,
+            label="Mean of all eligible MUs",
+        )
+        ax.fill_between(
+            x,
+            np.asarray(summary["selection_range_2_5_percentile"], dtype=float),
+            np.asarray(summary["selection_range_97_5_percentile"], dtype=float),
+            color=estimate_color,
+            alpha=0.2,
+            label="Central 95% across-selection-seed range",
+        )
+        ax.plot(
+            x,
+            np.asarray(summary["median_difference_across_seeds"], dtype=float),
+            "o-",
+            color=estimate_color,
+            linewidth=2,
+            markersize=8,
+            label="Median randomized HD-sEMG-like estimate (10 MUs)",
+        )
+        ax.axvline(main_threshold, color="grey", linestyle=":", linewidth=2)
+        ax.text(
+            main_threshold - 0.006,
+            0.02,
+            "main analysis",
+            rotation=90,
+            transform=ax.get_xaxis_transform(),
+            ha="right",
+            va="bottom",
+            color="grey",
+            fontsize=note_fontsize,
+        )
+        ax.set_title(panel_title, fontsize=title_fontsize, loc="left")
+        ax.set_xlabel("ISI-CoV eligibility threshold", fontsize=label_fontsize)
+        ax.set_xticks([0.2, 0.3, 0.4, 0.5])
+        ax.tick_params(labelsize=tick_fontsize)
 
     _stability_seeds = np.arange(
         selection_seeds["seed_stability_start"],
@@ -3052,136 +3272,122 @@ def _(
         index=False,
     )
 
-    _cache = _force_caches[20]
-    _truth = simulation_truth_paired_difference(_cache, trials)
-
-    # Grid spanning the ISI-CoV thresholds used experimentally (0.2-0.3) and beyond.
+    # Grid spanning the ISI-CoV ceilings used experimentally (0.25-0.50) and beyond.
     _isicv_grid = [0.15, 0.20, 0.25, 0.30, 0.32, 0.34, 0.36, 0.38, 0.40, 0.45, 0.50]
 
     _threshold_distributions = []
     _threshold_summaries = []
-    for _isicv in _isicv_grid:
-        _threshold_distribution = selection_seed_stability(
-            _cache,
-            trials,
-            criteria["fmin"],
-            criteria["fmax"],
-            _isicv,
-            mn_number,
-            _stability_seeds,
-        )
-        _threshold_distributions.append(_threshold_distribution)
-        _threshold_summary = selection_stability_summary(_threshold_distribution)
-        _threshold_summary.update(
-            {
-                "isicv": float(_isicv),
-                "fmin": float(criteria["fmin"]),
-                "fmax": float(criteria["fmax"]),
-                "sample_size": int(mn_number),
-                "n_pairs": int(len(trials)),
-                "truth_difference": _truth["difference"],
-            }
-        )
-        _threshold_summaries.append(_threshold_summary)
+    _threshold_truths = {}
+    for _force_level, _force_trials, _batch, _fixed_seed in _force_specs:
+        _cache = _force_caches[_force_level]
+        _truth = simulation_truth_paired_difference(_cache, _force_trials)
+        _threshold_truths[_force_level] = _truth
+        for _isicv in _isicv_grid:
+            _threshold_distribution = selection_seed_stability(
+                _cache,
+                _force_trials,
+                criteria["fmin"],
+                criteria["fmax"],
+                _isicv,
+                mn_number,
+                _stability_seeds,
+            )
+            _threshold_distribution.insert(0, "force_level_mvc", _force_level)
+            _threshold_distributions.append(_threshold_distribution)
+            _pool = eligible_pool_paired_difference(
+                _cache, _force_trials, criteria["fmin"], criteria["fmax"], _isicv
+            )
+            _threshold_summary = selection_stability_summary(_threshold_distribution)
+            _threshold_summary.update(
+                {
+                    "force_level_mvc": _force_level,
+                    "isicv": float(_isicv),
+                    "fmin": float(criteria["fmin"]),
+                    "fmax": float(criteria["fmax"]),
+                    "sample_size": int(mn_number),
+                    "n_pairs": int(len(_force_trials)),
+                    "eligible_pool_difference": _pool["difference"],
+                    "eligible_pool_wilcoxon_statistic": _pool["wilcoxon_statistic"],
+                    "eligible_pool_p_value": _pool["p_value"],
+                    "truth_difference": _truth["difference"],
+                }
+            )
+            _threshold_summaries.append(_threshold_summary)
 
     pd.concat(_threshold_distributions, ignore_index=True).to_csv(
         "diabetes/csv_results/selection_threshold_sensitivity_v2.csv", index=False
     )
-    _threshold_summary_frame = pd.DataFrame(_threshold_summaries).sort_values("isicv")
+    _threshold_summary_frame = pd.DataFrame(_threshold_summaries).sort_values(
+        ["force_level_mvc", "isicv"]
+    )
     _threshold_summary_frame.to_csv(
         "diabetes/csv_results/selection_threshold_sensitivity_summary_v2.csv",
         index=False,
     )
 
     print("=" * 78)
-    print("=== SELECTION-THRESHOLD SENSITIVITY (20% MVC) ===")
+    print("=== SELECTION-THRESHOLD SENSITIVITY (10%, 20%, 50% MVC) ===")
     print("=" * 78)
     print(
-        f"Simulation truth (all active MUs): {_truth['difference']:+.2f} pps  "
-        f"(Normal {_truth['normal_mean']:.2f}, DPN {_truth['dpn_mean']:.2f})"
-    )
-    print(
         f"Fixed: fmin={criteria['fmin']} pps, fmax={criteria['fmax']} pps, "
-        f"mn_number={mn_number}, {len(trials)} paired subjects"
+        f"mn_number={mn_number}, 50 paired subjects per force level"
     )
     print(
         f"Common ordered seed set: {_stability_seeds[0]}-{_stability_seeds[-1]} "
-        "at every threshold"
+        "at every threshold and force level"
     )
-    print(
-        f"\n{'ISI-CoV':>8}{'median difference':>20}{'95% seed range':>27}{'min pool':>10}"
-    )
-    for _row in _threshold_summaries:
-        _flag = "   <- main analysis" if _row["isicv"] == criteria["isicv"] else ""
+    for _force_level in (10, 20, 50):
+        _truth = _threshold_truths[_force_level]
         print(
-            f"{_row['isicv']:>8.2f}"
-            f"{_row['median_difference_across_seeds']:>+20.3f}"
-            f"{_row['selection_range_2_5_percentile']:>+12.3f} to "
-            f"{_row['selection_range_97_5_percentile']:>+7.3f}"
-            f"{_row['eligible_pool_minimum']:>10}{_flag}"
+            f"\n{_force_level}% MVC - simulation truth (all active MUs): "
+            f"{_truth['difference']:+.2f} pps "
+            f"(Normal {_truth['normal_mean']:.2f}, DPN {_truth['dpn_mean']:.2f})"
         )
+        print(
+            f"{'ISI-CoV':>8}{'median difference':>20}{'95% seed range':>27}"
+            f"{'eligible pool':>15}{'min pool':>10}"
+        )
+        for _row in _threshold_summary_frame[
+            _threshold_summary_frame["force_level_mvc"] == _force_level
+        ].to_dict("records"):
+            _flag = "   <- main analysis" if _row["isicv"] == criteria["isicv"] else ""
+            print(
+                f"{_row['isicv']:>8.2f}"
+                f"{_row['median_difference_across_seeds']:>+20.3f}"
+                f"{_row['selection_range_2_5_percentile']:>+12.3f} to "
+                f"{_row['selection_range_97_5_percentile']:>+7.3f}"
+                f"{_row['eligible_pool_difference']:>+15.3f}"
+                f"{_row['eligible_pool_minimum']:>10}{_flag}"
+            )
 
-    # --- Figure: paired difference against the ISI-CoV eligibility threshold ---
-    _fig, _ax = plt.subplots(figsize=(10, 6.5))
-
-    _x = _threshold_summary_frame["isicv"].to_numpy(dtype=float)
-    _median = _threshold_summary_frame["median_difference_across_seeds"].to_numpy(
-        dtype=float
+    # --- Figure 3: paired difference against the ISI-CoV threshold, per force level ---
+    _fig, _axes = plt.subplots(1, 3, figsize=(13.5, 5.6), sharey=True)
+    for _ax, _panel_letter, _force_level in zip(_axes, "ABC", (10, 20, 50)):
+        plot_threshold_panel(
+            _ax,
+            _threshold_summary_frame[
+                _threshold_summary_frame["force_level_mvc"] == _force_level
+            ],
+            _threshold_truths[_force_level]["difference"],
+            f"{_panel_letter}  {_force_level}% MVC",
+            criteria["isicv"],
+            add_threshold_truth_reference,
+            label_fontsize=fs_label,
+            tick_fontsize=fs_ticklabels,
+            title_fontsize=fs_title,
+        )
+    _axes[0].set_ylabel("Paired difference, DPN − Normal (pps)", fontsize=fs_label)
+    _handles, _labels = _axes[1].get_legend_handles_labels()
+    _fig.legend(
+        _handles[::-1],
+        _labels[::-1],
+        loc="upper center",
+        ncol=2,
+        fontsize=fs_legend - 2,
+        frameon=False,
+        bbox_to_anchor=(0.5, 1.03),
     )
-    _lower = _threshold_summary_frame["selection_range_2_5_percentile"].to_numpy(
-        dtype=float
-    )
-    _upper = _threshold_summary_frame["selection_range_97_5_percentile"].to_numpy(
-        dtype=float
-    )
-
-    _ax.axhline(0, color="black", linewidth=1)
-    add_threshold_truth_reference(_ax, _truth["difference"])
-    _ax.plot(
-        _x,
-        _median,
-        "o-",
-        color="tab:blue",
-        markersize=9,
-        linewidth=2,
-        label=f"Median randomized HD-sEMG estimate ({mn_number} MUs)",
-    )
-    _ax.fill_between(
-        _x,
-        _lower,
-        _upper,
-        color="tab:blue",
-        alpha=0.2,
-        label="Central 95% across-selection-seed range",
-    )
-    _ax.axvline(criteria["isicv"], color="grey", linestyle=":", linewidth=2)
-    _ax.text(
-        criteria["isicv"] - 0.005,
-        0.02,
-        "main analysis",
-        transform=_ax.get_xaxis_transform(),
-        rotation=90,
-        va="bottom",
-        ha="right",
-        color="grey",
-        fontsize=fs_legend,
-    )
-
-    _ax.set_xlabel("ISI-CoV eligibility threshold", fontsize=fs_label)
-    _ax.set_ylabel("Paired difference, DPN - Normal (pps)", fontsize=fs_label)
-    _ax.set_title(
-        "Selection-threshold sensitivity at 20% MVC",
-        fontsize=fs_title,
-        fontweight=fontweight,
-    )
-    _ax.tick_params(axis="both", labelsize=fs_ticklabels)
-    # Headroom above the simulation-truth line keeps the legend clear of the curves.
-    _ax.set_ylim(
-        float(_lower.min()) - 0.15,
-        max(float(_upper.max()), _truth["difference"]) + 0.65,
-    )
-    _ax.legend(fontsize=fs_legend, loc="upper left")
-    _fig.tight_layout()
+    _fig.tight_layout(rect=(0, 0, 1, 0.83))
 
     _figure_path = "diabetes/figures/selection_threshold_sensitivity_v2.png"
     _fig.savefig(_figure_path, dpi=300, bbox_inches="tight")

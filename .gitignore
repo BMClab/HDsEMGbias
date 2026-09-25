@@ -1,6 +1,11 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 
+# Local manuscript revision files and working material.
+/revision/
+# Superseded v1 analysis notebook, kept locally only (removed from the repository).
+/diabetes/analysis.py
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

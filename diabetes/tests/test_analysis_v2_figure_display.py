@@ -23,6 +23,29 @@ from scipy import stats
 
 NOTEBOOK = Path(__file__).parents[2] / "diabetes" / "analysis_v2.py"
 
+ESTIMATE_BLUE = "#0072B2"
+SUBJECT_BLUE = "#56B4E9"
+POOL_ORANGE = "#E69F00"
+
+
+def is_red_or_green(color):
+    """True for strongly red or green hues, which red-green CVD readers confuse."""
+    red, green, blue = mcolors.to_rgb(color)
+    reddish = red > 0.6 and green < 0.35 and blue < 0.35
+    greenish = green > 0.35 and red < 0.3 and blue < 0.3
+    return reddish or greenish
+
+
+def assert_no_red_or_green(test_case, axis):
+    colors = [line.get_color() for line in axis.get_lines()]
+    for collection in axis.collections:
+        colors.extend(collection.get_edgecolors())
+        colors.extend(collection.get_facecolors())
+    colors.extend(text.get_color() for text in axis.texts)
+    for color in colors:
+        test_case.assertFalse(is_red_or_green(color), f"red/green element: {color}")
+
+
 
 def load_notebook_function(name, extra_namespace=None):
     tree = ast.parse(NOTEBOOK.read_text())
@@ -232,50 +255,102 @@ class FigureDisplayTest(unittest.TestCase):
         self.assertGreater(significance_y - 0.5, axis.get_ylim()[0])
         self.assertLess(significance_y + 0.1, axis.get_ylim()[1])
 
-    def test_primary_summaries_are_distinct_from_blue_subject_markers(self):
+    def test_primary_summaries_are_distinct_from_light_blue_subject_markers(self):
         add_primary_fr_summaries = load_notebook_function(
             "add_primary_fr_summaries"
         )
         figure, axis = plt.subplots()
         self.addCleanup(plt.close, figure)
-        subject_markers = axis.scatter([1], [12], color="tab:blue")
+        subject_markers = axis.scatter([1], [12], s=40, color=SUBJECT_BLUE)
 
-        estimate_handle, truth_handle = add_primary_fr_summaries(
+        estimate_handle, pool_handle, truth_handle = add_primary_fr_summaries(
             axis,
             mean_fr=np.array([12.0, 11.5]),
             yerr=np.array([[0.2, 0.2], [0.3, 0.3]]),
-            truth_mean_fr=np.array([13.0, 12.5]),
-            normal_jitter=np.array([0.9, 1.1]),
-            truth_line_width=0.2,
+            truth_mean_fr=np.array([13.0, 14.0]),
+            pool_mean_fr=np.array([12.1, 11.6]),
+            half_width=0.2,
         )
 
         mean_line, cap_lines, interval_collections = estimate_handle.lines
-        self.assertEqual(mean_line.get_marker(), "o")
-        self.assertEqual(mean_line.get_color(), "red")
-        self.assertEqual(mean_line.get_markersize(), 8)
+        self.assertEqual(mean_line.get_marker(), "D")
+        np.testing.assert_allclose(
+            mcolors.to_rgb(mean_line.get_color()), mcolors.to_rgb(ESTIMATE_BLUE)
+        )
         self.assertGreater(
             mean_line.get_markersize(),
             np.sqrt(subject_markers.get_sizes()[0]),
         )
         self.assertGreater(mean_line.get_zorder(), subject_markers.get_zorder())
         for cap_line in cap_lines:
-            self.assertEqual(cap_line.get_color(), "red")
-            self.assertGreater(cap_line.get_zorder(), mean_line.get_zorder())
+            np.testing.assert_allclose(
+                mcolors.to_rgb(cap_line.get_color()), mcolors.to_rgb(ESTIMATE_BLUE)
+            )
         for interval_collection in interval_collections:
             np.testing.assert_allclose(
                 interval_collection.get_colors()[0, :3],
-                mcolors.to_rgb("red"),
-            )
-            self.assertGreater(
-                interval_collection.get_zorder(),
-                mean_line.get_zorder(),
+                mcolors.to_rgb(ESTIMATE_BLUE),
             )
         np.testing.assert_allclose(
-            truth_handle.get_colors()[0, :3],
-            mcolors.to_rgb("green"),
+            truth_handle.get_colors()[0, :3], mcolors.to_rgb("black")
+        )
+        np.testing.assert_allclose(
+            pool_handle.get_colors()[0, :3], mcolors.to_rgb(POOL_ORANGE)
+        )
+        self.assertNotEqual(
+            pool_handle.get_linestyles()[0], truth_handle.get_linestyles()[0]
         )
 
-    def test_primary_significance_annotation_matches_red_hdemg_summary(self):
+    def test_primary_reference_lines_are_centered_on_each_condition(self):
+        add_primary_fr_summaries = load_notebook_function(
+            "add_primary_fr_summaries"
+        )
+        figure, axis = plt.subplots()
+        self.addCleanup(plt.close, figure)
+
+        _, pool_handle, truth_handle = add_primary_fr_summaries(
+            axis,
+            mean_fr=np.array([12.0, 11.5]),
+            yerr=np.array([[0.2, 0.2], [0.3, 0.3]]),
+            truth_mean_fr=np.array([13.0, 14.0]),
+            pool_mean_fr=np.array([12.1, 11.6]),
+            half_width=0.25,
+        )
+
+        for handle, levels in (
+            (truth_handle, (13.0, 14.0)),
+            (pool_handle, (12.1, 11.6)),
+        ):
+            segments = handle.get_segments()
+            self.assertEqual(len(segments), 2)
+            for segment, center, level in zip(segments, (1, 2), levels):
+                np.testing.assert_allclose(
+                    segment[:, 0], [center - 0.25, center + 0.25]
+                )
+                np.testing.assert_allclose(segment[:, 1], [level, level])
+
+    def test_primary_figure_elements_avoid_red_and_green(self):
+        add_primary_fr_summaries, add_primary_fr_significance = (
+            load_notebook_functions(
+                "add_primary_fr_summaries", "add_primary_fr_significance"
+            )
+        )
+        figure, axis = plt.subplots()
+        self.addCleanup(plt.close, figure)
+
+        add_primary_fr_summaries(
+            axis,
+            mean_fr=np.array([12.0, 11.5]),
+            yerr=np.array([[0.2, 0.2], [0.3, 0.3]]),
+            truth_mean_fr=np.array([13.0, 14.0]),
+            pool_mean_fr=np.array([12.1, 11.6]),
+            half_width=0.2,
+        )
+        add_primary_fr_significance(axis, p_value=0.0008, significance_y=15)
+
+        assert_no_red_or_green(self, axis)
+
+    def test_primary_significance_annotation_is_black(self):
         add_primary_fr_significance = load_notebook_function(
             "add_primary_fr_significance"
         )
@@ -290,11 +365,11 @@ class FigureDisplayTest(unittest.TestCase):
 
         self.assertEqual(len(bracket_lines), 3)
         for bracket_line in bracket_lines:
-            self.assertEqual(bracket_line.get_color(), "red")
+            self.assertEqual(bracket_line.get_color(), "black")
         self.assertEqual(significance_text.get_text(), "***")
-        self.assertEqual(significance_text.get_color(), "red")
+        self.assertEqual(significance_text.get_color(), "black")
 
-    def test_threshold_truth_reference_is_green_and_emphasized(self):
+    def test_threshold_truth_reference_is_black_dashed_and_emphasized(self):
         add_threshold_truth_reference = load_notebook_function(
             "add_threshold_truth_reference"
         )
@@ -303,7 +378,7 @@ class FigureDisplayTest(unittest.TestCase):
         (randomized_line,) = axis.plot(
             [0.15, 0.30],
             [-0.6, -0.5],
-            color="tab:blue",
+            color=ESTIMATE_BLUE,
             linewidth=2,
         )
 
@@ -312,16 +387,62 @@ class FigureDisplayTest(unittest.TestCase):
             truth_difference=1.03,
         )
 
-        self.assertEqual(truth_line.get_color(), "green")
+        self.assertEqual(truth_line.get_color(), "black")
         self.assertEqual(truth_line.get_linestyle(), "--")
         self.assertGreater(
             truth_line.get_linewidth(),
             randomized_line.get_linewidth(),
         )
 
+    def test_threshold_panel_shows_all_four_series_without_red_or_green(self):
+        add_threshold_truth_reference, plot_threshold_panel = load_notebook_functions(
+            "add_threshold_truth_reference", "plot_threshold_panel"
+        )
+        figure, axis = plt.subplots()
+        self.addCleanup(plt.close, figure)
+        summary = {
+            "isicv": np.array([0.2, 0.3, 0.4]),
+            "median_difference_across_seeds": np.array([-0.6, -0.5, -0.1]),
+            "selection_range_2_5_percentile": np.array([-0.7, -0.7, -0.4]),
+            "selection_range_97_5_percentile": np.array([-0.5, -0.3, 0.1]),
+            "eligible_pool_difference": np.array([-0.61, -0.49, -0.11]),
+        }
+
+        plot_threshold_panel(
+            axis,
+            summary,
+            truth_difference=1.03,
+            panel_title="B  20% MVC",
+            main_threshold=0.3,
+            add_truth_reference=add_threshold_truth_reference,
+        )
+
+        _handles, labels = axis.get_legend_handles_labels()
+        self.assertEqual(
+            labels,
+            [
+                "Simulation truth (all active MUs)",
+                "Mean of all eligible MUs",
+                "Central 95% across-selection-seed range",
+                "Median randomized HD-sEMG-like estimate (10 MUs)",
+            ],
+        )
+        self.assertEqual(axis.get_title(loc="left"), "B  20% MVC")
+        pool_line = next(
+            line
+            for line in axis.get_lines()
+            if line.get_label() == "Mean of all eligible MUs"
+        )
+        self.assertEqual(pool_line.get_marker(), "^")
+        self.assertEqual(pool_line.get_markerfacecolor(), "none")
+        np.testing.assert_allclose(
+            pool_line.get_ydata(), summary["eligible_pool_difference"]
+        )
+        assert_no_red_or_green(self, axis)
+
 
 class ForceLevelRobustnessTest(unittest.TestCase):
-    def test_force_robustness_title_and_legend_do_not_overlap(self):
+    def test_force_robustness_legend_sits_above_panel_titles_without_suptitle(self):
         finalize_force_robustness_figure = load_notebook_function(
             "finalize_force_robustness_figure"
         )
@@ -329,22 +450,45 @@ class ForceLevelRobustnessTest(unittest.TestCase):
         self.addCleanup(plt.close, figure)
         (first_handle,) = axes[0].plot([10, 20], [0, 1], label="Estimate")
         (second_handle,) = axes[0].plot([10, 20], [1, 0], label="Truth")
+        for axis, title in zip(axes, ("A  Firing rate", "B  ISI-CoV")):
+            axis.set_title(title, fontsize=20, loc="left")
 
-        title, legend = finalize_force_robustness_figure(
+        legend = finalize_force_robustness_figure(
             figure,
             [first_handle, second_handle],
             ["Estimate", "Truth"],
-            legend_fontsize=16,
-            title_fontsize=20,
-            title_fontweight="normal",
+            legend_fontsize=14,
         )
         figure.canvas.draw()
         renderer = figure.canvas.get_renderer()
 
-        self.assertGreater(
-            title.get_window_extent(renderer).y0,
-            legend.get_window_extent(renderer).y1,
+        self.assertEqual(figure.get_suptitle(), "")
+        legend_bottom = legend.get_window_extent(renderer).y0
+        for axis in axes:
+            self.assertGreater(
+                legend_bottom, axis._left_title.get_window_extent(renderer).y1
+            )
+
+    def test_force_robustness_styles_avoid_red_and_green(self):
+        force_robustness_estimate_styles = load_notebook_function(
+            "force_robustness_estimate_styles"
         )
+
+        styles = force_robustness_estimate_styles()
+
+        self.assertEqual(
+            set(styles),
+            {"randomized_hdsemg", "simulation_truth_all_active_motor_units"},
+        )
+        truth = styles["simulation_truth_all_active_motor_units"]
+        self.assertEqual(truth["color"], "black")
+        self.assertEqual(truth["linestyle"], "--")
+        self.assertEqual(
+            mcolors.to_hex(styles["randomized_hdsemg"]["color"]),
+            ESTIMATE_BLUE.lower(),
+        )
+        for style in styles.values():
+            self.assertFalse(is_red_or_green(style["color"]))
 
     def test_paired_subject_effects_preserve_ids_and_use_dpn_minus_normal(self):
         paired_subject_effects = load_notebook_function("paired_subject_effects")
@@ -458,6 +602,65 @@ class ForceLevelRobustnessTest(unittest.TestCase):
                 for row in result["contrasts"]
             )
         )
+
+
+class EligiblePoolTest(unittest.TestCase):
+    def test_eligible_units_satisfy_rate_window_and_regularity(self):
+        compute_mn_cv, compute_cv, compute_fr, eligible_mns_hdemg = (
+            load_notebook_functions(
+                "compute_mn_cv", "compute_cv", "compute_fr", "eligible_mns_hdemg"
+            )
+        )
+        rng = np.random.default_rng(0)
+        rows = []
+        # Unit 0: regular 10 pps (eligible).
+        rows += [(0, t) for t in np.arange(4000, 10000, 100.0)]
+        # Unit 1: regular 20 pps (above the 15-pps limit).
+        rows += [(1, t) for t in np.arange(4000, 10000, 50.0)]
+        # Unit 2: ~10 pps but highly irregular (ISI-CoV above 0.3).
+        rows += [(2, t) for t in np.sort(rng.uniform(4000, 10000, 60))]
+        # Unit 3: regular 3 pps (below the 5-pps limit).
+        rows += [(3, t) for t in np.arange(4000, 10000, 1000 / 3)]
+        data = np.array(rows, dtype=float)
+
+        eligible = eligible_mns_hdemg(
+            data,
+            t_start=4000,
+            t_end=10000,
+            criteria={"fmin": 5, "fmax": 15, "isicv": 0.3},
+        )
+
+        np.testing.assert_array_equal(eligible, [0])
+
+    def test_eligible_pool_difference_is_dpn_minus_normal_of_pool_means(self):
+        eligible_pool_paired_difference = load_notebook_function(
+            "eligible_pool_paired_difference",
+            {
+                "_eligible_units": load_notebook_function("_eligible_units"),
+                "conditions": ["normal", "DPN"],
+                "stats": stats,
+            },
+        )
+        cache = {}
+        for trial, shift in enumerate((0.0, 0.2, 0.4, 0.6, 0.8, 1.0)):
+            # (unit ids, firing rate, ISI-CoV); the last unit is never eligible.
+            cache[("normal", trial)] = (
+                np.arange(3),
+                np.array([10.0 + shift, 12.0, 20.0]),
+                np.array([0.1, 0.2, 0.1]),
+            )
+            cache[("DPN", trial)] = (
+                np.arange(3),
+                np.array([9.0 + shift, 11.0, 12.0]),
+                np.array([0.1, 0.2, 0.5]),
+            )
+
+        result = eligible_pool_paired_difference(
+            cache, range(6), fmin=5, fmax=15, isicv=0.3
+        )
+
+        self.assertAlmostEqual(result["difference"], -1.0)
+        self.assertEqual(result["n_pairs"], 6)
 
 
 if __name__ == "__main__":
